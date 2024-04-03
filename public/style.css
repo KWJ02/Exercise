@@ -1,0 +1,16 @@
+.blue-ground {background-color: blueviolet;}
+.grid-border {border : 1px}
+
+.content_wrap{
+  width: 200px;
+  height: fit-content;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-column-gap: 5px;
+  grid-row-gap: 5px;
+}
+
+.content_wrap .content{
+  height: 20px;
+  background: green;
+}
