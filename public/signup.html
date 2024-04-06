@@ -101,6 +101,24 @@
 </div>
 
 <script>
+  // 비밀번호 확인
+  var password = document.getElementById("password");
+  var confirmPassword = document.getElementById("confirmPassword");
+
+  function validatePassword() {
+    if (password.value != confirmPassword.value) {
+      confirmPassword.setCustomValidity("비밀번호가 일치하지 않습니다.");
+    } else {
+      confirmPassword.setCustomValidity('');
+    }
+  }
+
+  password.onchange = validatePassword;
+  confirmPassword.onkeyup = validatePassword;
+</script>
+
+
+<script>
   // 연도 옵션 생성
   var yearSelect = document.getElementById("year");
   for (var i = 1900; i <= 2024; i++) {
