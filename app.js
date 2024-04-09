@@ -3,6 +3,9 @@ const app = express()
 
 app.use(express.static(__dirname + "/public"));
 
+app.set('view engine', 'jade')
+app.set('views', 'views')
+
 app.listen(3000, (err) => {
   if(err){
     console.log(err)
@@ -13,25 +16,37 @@ app.listen(3000, (err) => {
 // 홈페이지
 app.get('/', (req, res) => {
   console.log(__dirname)
-  res.sendFile(__dirname + '/public/mainView.html')
+  res.sendFile(__dirname + '/public/main.html')
+})
+// 혹시모를 홈페이지 jade 버전
+app.get('/main', (req, res) => {
+  res.render('main')
 })
 
 app.get('/signIn', (req, res) => {
-  res.send('로그인 창 페이지입니다. html이나 jade이용해서 sendFile이나 render할거에요')
+  res.sendFile(__dirname + '/public/login.html')
 })
 
-app.get('/bmiCalc', (req, res) => {
-  res.send("BMI 계산 페이지 입니다.")
-})
-
-app.get('/exerciseRec', (req, res) => {
-  res.send("운동 추천 페이지 입니다.")
+app.get('/signUp', (req, res) => {
+  res.sendFile(__dirname + '/public/signUp.html')
 })
 
 app.get('/dashboard', (req, res) => {
-  res.send("대시보드 페이지 입니다.")
+  res.render('dashboard')
+})
+
+app.get('/bmiCalc', (req, res) => {
+  res.render('bmiCalc')
+})
+
+app.get('/exerciseRec', (req, res) => {
+  res.render('exerciseRec')
+})
+
+app.get('/exerciseLib', (req, res) => {
+  res.send('운동 라이브러리 개설 예정')
 })
 
 app.get('/community', (req, res) => {
-  res.send("커뮤니티 페이지 입니다.")
+  res.render('community')
 })
