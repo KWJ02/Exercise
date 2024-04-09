@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 
 app.use(express.static(__dirname + "/public"));
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.set('view engine', 'jade')
 app.set('views', 'views')
@@ -11,6 +13,10 @@ app.listen(3000, (err) => {
     console.log(err)
   }
   console.log("Server Starting at 3000 port!")
+})
+
+app.get('/test', (req, res) => {
+  res.sendFile(__dirname + '/public/test.html')
 })
 
 // 홈페이지
@@ -23,13 +29,31 @@ app.get('/main', (req, res) => {
   res.render('main')
 })
 
+
 app.get('/signIn', (req, res) => {
-  res.sendFile(__dirname + '/public/login.html')
+  res.sendFile(__dirname + '/public/signIn.html')
 })
+app.post('/signIn', (req, res) => {
+  let id = req.body.id
+  let password = req.body.password
+
+  res.send(id + ', '+ password)
+})
+
 
 app.get('/signUp', (req, res) => {
   res.sendFile(__dirname + '/public/signUp.html')
 })
+app.post('/signUp', (req, res) => {
+  let id = req.body.user_id
+  let password = req.body.user_password
+  let name = req.body.user_name
+  let email = req.body.user_email
+
+  res.send(name + ', ' + email +  ', ' + id + ', ' + password)
+})
+
+
 
 app.get('/dashboard', (req, res) => {
   res.render('dashboard')
@@ -37,6 +61,14 @@ app.get('/dashboard', (req, res) => {
 
 app.get('/bmiCalc', (req, res) => {
   res.render('bmiCalc')
+})
+app.post('/bmiCalc', (req, res) => {
+  let age = req.body.age
+  let height = req.body.height
+  let weight = req.body.weight
+  let gender = req.body.gender
+
+  res.send(age + height + weight + gender)
 })
 
 app.get('/exerciseRec', (req, res) => {
