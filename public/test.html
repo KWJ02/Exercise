@@ -31,13 +31,17 @@
     <meta name="theme-color" content="#712cf9">
     <style>
         /* 본문 영역 스타일 */
+        body {
+          background-image: linear-gradient(to top left, #bdc3c7, #2c3e50);
+          background-repeat : no-repeat;
+          background-size : cover;
+        }
         .form-container {
-          margin-top : 100px;
+          margin-top : 180px;
         }
     </style>
 </head>
 <body>
-
   <nav class="navbar navbar-expand-md bg-dark sticky-top border-bottom" data-bs-theme="dark">
     <div class="container">
       <a class="navbar-brand d-md-none" href="/">
@@ -65,43 +69,76 @@
     </div>
   </nav>
 
-<!-- 본문 영역 -->
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="form-container" style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;">
-        <h2 class="text-center mb-4">BMI 측정기</h2>
-        <form action="/bmiCalc" method="post" class="row g-3">
-          <div class="col-md-12">
-            <label for="age" class="form-label">나이</label>
-            <input type="number" class="form-control" name="age" id="age" placeholder="나이를 입력하세요.">
-          </div><br>
-          <div class="col-md-12">
-            <label for="height" class="form-label">신장</label>
-            <input type="number" class="form-control" name="height" id="height" placeholder="신장(cm)을 입력하세요.">
-          </div><br>
-          <div class="col-md-12">
-            <label for="weight" class="form-label">몸무게</label>
-            <input type="number" class="form-control" name="weight" id="weight" placeholder="몸무게(kg)를 입력하세요.">
-          </div><br>
-          <div class="col-md-12">
-            <label class="form-label">성별</label>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="gender" id="male" value="male">
-              <label class="form-check-label" for="male">남성</label>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <input class="form-check-input" type="radio" name="gender" id="female" value="female">
-              <label class="form-check-label" for="female">여성</label>
-            </div><br>
-          </div>
-          <div class="col-md-12">
-            <button type="submit" class="btn btn-primary btn-block">측정하기</button>
-          </div>
-        </form>
+  <!-- 본문 영역 -->
+  <div class="container" style="margin-bottom : 200px;">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="form-container" style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;">
+          <h2 class="text-center mb-4">BMI 측정기</h2><br>
+          <form action="/bmiCalc" method="post" class="row g-3">
+            <div class="col-md-12">
+              <label for="height" class="form-label">신장</label>
+              <input type="number" class="form-control" name="height" id="height" placeholder="신장(cm)을 입력하세요.">
+            </div><br><br>
+            <div class="col-md-12">
+              <label for="weight" class="form-label">몸무게</label>
+              <input type="number" class="form-control" name="weight" id="weight" placeholder="몸무게(kg)를 입력하세요.">
+            </div><br><br>
+            <div class="col-md-12">
+              <button type="submit" class="btn btn-primary btn-block">측정하기</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <footer class="container py-5">
+    <div class="row">
+      <div class="col-12 col-md">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mb-2" role="img" viewBox="0 0 24 24"><title>Product</title><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"/></svg>
+        <small class="d-block mb-3 text-body-secondary">&copy; 2017–2024</small>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Features</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="link-light text-decoration-none" href="#">Cool stuff</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Random feature</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Team feature</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Stuff for developers</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Another one</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Last time</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Resources</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="link-light text-decoration-none" href="#">Resource name</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Resource</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Another resource</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Final resource</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Resources</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="link-light text-decoration-none" href="#">Business</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Education</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Government</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Gaming</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md">
+        <h5>About</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="link-light text-decoration-none" href="#">Team</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Locations</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Privacy</a></li>
+          <li><a class="link-light text-decoration-none" href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

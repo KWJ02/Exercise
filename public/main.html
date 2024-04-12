@@ -34,9 +34,20 @@
         background-image: linear-gradient(to top left, #ffd1ff, #fad0c4);
       }
 
-      .moveBanner {
+      main {
+        display: flex;
+        flex-wrap: wrap; /* 필요에 따라 줄 바꿈을 활성화할 수 있습니다. */
+      }
+
+      .mainBanner {
+        flex: 1 0 100%; /* 모든 화면 크기에서 동일한 너비를 유지합니다. */
         transition : transform 0.3s ease;
       }
+
+      .subBanner {
+        flex: 1 0 50%; /* 모든 화면 크기에서 가로 너비의 50%를 유지합니다. */
+      }
+      
       .moveBanner:hover {
         transform: translateY(-5px);
       }
