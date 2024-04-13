@@ -21,6 +21,9 @@ app.get('/test', (req, res) => {
 app.get('/test2', (req, res) => {
   res.sendFile(__dirname + '/public/test2.html')
 })
+app.get('/test3', (req, res) => {
+  res.sendFile(__dirname + '/public/test3.html')
+})
 
 // 홈페이지
 app.get('/', (req, res) => {
@@ -66,10 +69,14 @@ app.get('/bmiCalc', (req, res) => {
   res.render('bmiCalc')
 })
 app.post('/bmiCalc', (req, res) => {
+  let gender = req.body.gender
+  let age = req.body.age
   let height = req.body.height
   let weight = req.body.weight
 
-  res.send(height + weight)
+  console.log(gender)
+
+  res.render('bmiCalc', {gender : gender, age : age, height : height, weight : weight})
 })
 
 app.get('/exerciseRec', (req, res) => {

@@ -37,7 +37,7 @@
           background-size : cover;
         }
         .form-container {
-          margin-top : 80px;
+          margin-top : 30px;
         }
     </style>
 </head>
@@ -70,47 +70,54 @@
   </nav>
 
   <!-- 본문 영역 -->
-  <div class="container" style="margin-bottom : 200px;">
+  <div class="container" style="margin-top: 50px;">
     <div class="row justify-content-center">
       <div class="col-md-6">
-        <div class="form-container" style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;">
-          <h2 class="text-center mb-4">BMI 측정기</h2><br>
-          <form action="/bmiCalc" method="post" class="row g-3">
+        <div class="form-container" style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white; margin-right: 10px;">
+          <h2 class="text-center mb-4">BMI 측정기</h2>
+          <form class="row g-3" action="/bmiCalc" method="post">
             <div class="col-md-12">
               <label class="form-label">성별</label>
               <div class="form-check">
-                  <input class="form-check-input" type="radio" name="gender" id="male" value="male">
-                  <label class="form-check-label" for="male">
-                      남성
-                  </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <input class="form-check-input" type="radio" name="gender" id="female" value="female">
-                  <label class="form-check-label" for="female">
-                      여성
-                  </label>
+                <input class="form-check-input" type="radio" name="gender" id="male" value="male">
+                <label class="form-check-label" for="male">남성</label>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                <label class="form-check-label" for="female">여성</label>
               </div>
-            </div><hr>
+            </div>
+            <hr>
             <div class="col-md-12">
-              <label for="age" class="form-label">나이</label>
-              <input type="number" class="form-control" name="age" id="age" placeholder="나이를 입력하세요.">
-            </div><br><br>
+              <label class="form-label" for="age">나이</label>
+              <input class="form-control" type="number" name="age" id="age" placeholder="나이를 입력하세요.">
+            </div>
+            <br>
+            <br>
             <div class="col-md-12">
-              <label for="height" class="form-label">신장</label>
-              <input type="number" class="form-control" name="height" id="height" placeholder="신장(cm)을 입력하세요.">
-            </div><br><br>
+              <label class="form-label" for="height">신장</label>
+              <input class="form-control" type="number" name="height" id="height" placeholder="신장(cm)을 입력하세요.">
+            </div>
+            <br>
+            <br>
             <div class="col-md-12">
-              <label for="weight" class="form-label">몸무게</label>
-              <input type="number" class="form-control" name="weight" id="weight" placeholder="몸무게(kg)를 입력하세요.">
-            </div><br><br>
+              <label class="form-label" for="weight">몸무게</label>
+              <input class="form-control" type="number" name="weight" id="weight" placeholder="몸무게(kg)를 입력하세요.">
+            </div>
+            <br>
+            <br>
             <div class="col-md-12">
-              <button type="submit" class="btn btn-primary btn-block">측정하기</button>
+              <button class="btn btn-primary btn-block" type="submit">측정하기</button>
             </div>
           </form>
         </div>
       </div>
+      <div class="col-md-6">
+        <div style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white; margin-right: 10px;">
+      </div>
     </div>
   </div>
 
-  <footer class="container py-5">
+  <footer class="container py-5" style="margin-top : 50px">
     <div class="row">
       <div class="col-12 col-md">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mb-2" role="img" viewBox="0 0 24 24"><title>Product</title><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94"/></svg>
