@@ -120,7 +120,7 @@
       const btn = document.getElementById("submit_button")
 
       function checkInput() {
-        if (id.value.trim() !== "" && pw.value.trim() !== "" && name.value.trim() !== "" && email.value.trim() !== "" && cpw.value.trim() !== "" ) {
+        if (id.value.trim() !== "" &&  name.value.trim() !== "" && email.value.trim() !== "" && cpw.value.trim() !== "" && pw.value.trim() !== "" && cpw.value === pw.value) {
           btn.disabled = false;
         } else {
           btn.disabled = true;

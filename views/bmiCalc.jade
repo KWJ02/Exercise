@@ -50,15 +50,25 @@ html(lang="en")
           .offcanvas-body
             ul.navbar-nav.flex-grow-1.justify-content-between
               li.nav-item
-                a.nav-link(href="/") E-Recommender
+                a.nav-link(href="/main") E-Recommender
               li.nav-item
                 a.nav-link(href="/bmiCalc") BMI 측정
               li.nav-item
                 a.nav-link(href="/exerciseRec") 운동 추천
               li.nav-item
                 a.nav-link(href="/community") 커뮤니티
-              li.nav-item
-                a.nav-link(href="/signIn") 로그인
+              if(name)
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(href="#", role="button", data-bs-toggle="dropdown", aria-expanded="false")= name + '님'
+                  ul.dropdown-menu.dropdown-menu-end
+                    li
+                      a.dropdown-item(href="/myPage") 마이페이지
+                    li
+                      a.dropdown-item(href="/logout") 로그아웃
+              else
+                li.nav-item
+                  a.nav-link(href="/signIn") 로그인
+              
     // 본문 영역
     if(height)
       .container(style="margin-top: 80px;")
@@ -129,7 +139,7 @@ html(lang="en")
               br
               br
               .col-md-12
-                button.btn.btn-primary.btn-block(type="submit") 측정하기    
+                button.btn.btn-primary.btn-block(type="submit" id="btn" disabled)   측정하기    
   footer.container.py-5(style='margin-top : 50px;')
     .row
       .col-12.col-md
@@ -187,6 +197,29 @@ html(lang="en")
           li
             a.link-light.text-decoration-none(href="#") Terms
   script(src='/public/quote.js')
+  script.
+    function submitOn() {
+      const age = document.getElementById("age");
+      const height = document.getElementById("height");
+      const weight = document.getElementById("weight");
+      const btn = document.getElementById("btn")
+
+      function checkInput() {
+        if (age.value.trim() !== "" && height.value.trim() !== "" && weight.value.trim() !== "") {
+          btn.disabled = false;
+        } else {
+          btn.disabled = true;
+        }
+      }
+      age.addEventListener("input", checkInput);
+      height.addEventListener("input", checkInput);
+      weight.addEventListener("input", checkInput);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      submitOn();
+    });
+
   script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
   script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
   script(src="/docs/5.3/dist/js/bootstrap.bundle.min.js", integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz", crossorigin="anonymous")

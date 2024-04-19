@@ -1,9 +1,22 @@
 const express = require('express')
+const mysql = require('mysql')
+const session = require('express-session')
+const conn = mysql.createConnection({
+  host : 'localhost',
+  user : 'root',
+  password : '',
+  database : 'ER'
+})
 const app = express()
 
 app.use(express.static(__dirname + "/public"));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(session({
+  secret : 'exerciseRec123',
+  resave : true,
+  saveUninitialized : false,
+}))
 
 app.set('view engine', 'jade')
 app.set('views', 'views')
@@ -26,16 +39,21 @@ app.get('/test3', (req, res) => {
 })
 
 // 홈페이지
-app.get('/', (req, res) => {
-  console.log(__dirname)
-  res.sendFile(__dirname + '/public/main.html')
+app.get('/main', (req, res) => {
+  if(req.session.name){
+    res.render('main', {name : req.session.name})
+  } else {
+    res.sendFile(__dirname + '/public/main.html')
+  }
 })
 // 혹시모를 홈페이지 jade 버전
-app.get('/main', (req, res) => {
-  res.render('main')
-})
+// app.get('/main', (req, res) => {
+//   res.render('main')
+// })
 
 
+
+// **********************************로그인
 app.get('/signIn', (req, res) => {
   res.sendFile(__dirname + '/public/signIn.html')
 })
@@ -43,20 +61,42 @@ app.post('/signIn', (req, res) => {
   let id = req.body.id
   let password = req.body.password
 
-  res.send(id + ', '+ password)
+  // SELECT, UPDATE, DELETE는 항상 WHERE 사용
+  sql = 'SELECT * FROM users WHERE user_id=? AND user_pw=?'
+  conn.query(sql, [id, password], (err, result) => {
+    if(err){
+      console.log(err)
+      res.status(500).send('Internal Server Error')
+    } else {
+      req.session.name = result[0].name
+      req.session.email = result[0].email
+      req.session.save(() =>{
+        res.redirect('/main')
+      })
+    }
+  })
 })
 
 
+// ********************************회원가입
 app.get('/signUp', (req, res) => {
   res.sendFile(__dirname + '/public/signUp.html')
 })
 app.post('/signUp', (req, res) => {
   let id = req.body.user_id
   let password = req.body.user_password
-  let name = req.body.user_name
   let email = req.body.user_email
+  let name = req.body.user_name
 
-  res.send(name + ', ' + email +  ', ' + id + ', ' + password)
+  let sql = 'INSERT INTO users (user_id, user_pw, email, name) VALUES (?,?,?,?)'
+  conn.query(sql,[id,password,email,name],(err, result) => {
+    if(err){
+      console.log(err)
+      res.status(500).send('Interner Server Error')
+    } else {
+      res.redirect('/signIn')
+    }
+  })
 })
 
 
@@ -66,7 +106,11 @@ app.get('/dashboard', (req, res) => {
 })
 
 app.get('/bmiCalc', (req, res) => {
-  res.render('bmiCalc')
+  if(req.session.name){
+    res.render('bmiCalc', {name : req.session.name})
+  } else {
+    res.render('bmiCalc')
+  }
 })
 app.post('/bmiCalc', (req, res) => {
   let gender = req.body.gender
@@ -80,7 +124,11 @@ app.post('/bmiCalc', (req, res) => {
 })
 
 app.get('/exerciseRec', (req, res) => {
-  res.render('exerciseRec')
+  if(req.session.name){
+    res.render('exerciseRec', {name : req.session.name})
+  } else {
+    res.render('exerciseRec')
+  }
 })
 
 app.get('/exerciseLib', (req, res) => {
@@ -88,5 +136,9 @@ app.get('/exerciseLib', (req, res) => {
 })
 
 app.get('/community', (req, res) => {
-  res.render('community')
+  if(req.session.name){
+    res.render('community', {name : req.session.name})
+  } else {
+    res.render('community')
+  }
 })
