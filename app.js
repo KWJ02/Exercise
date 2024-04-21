@@ -76,6 +76,16 @@ app.post('/signIn', (req, res) => {
     }
   })
 })
+app.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if(err){
+      console.log(err)
+      res.status(500).send('Internal Server Error!')
+    } else {
+      res.redirect('/main')
+    }
+  })
+})
 
 
 // ********************************회원가입
