@@ -128,10 +128,11 @@ app.post('/bmiCalc', (req, res) => {
   let age = req.body.age
   let height = req.body.height
   let weight = req.body.weight
+  let bmi = ((weight / (height * height)) * 10000).toFixed(2)
+  let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
+  let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1) 
 
-  console.log(gender)
-
-  res.render('bmiCalc', {gender : gender, age : age, height : height, weight : weight})
+  res.render('bmiCalc', {bmi : {bmi, normalMinimumWeight, normalMaximumWeight}, age : age, gender : gender, height : height, weight : weight})
 })
 
 app.get('/exerciseRec', (req, res) => {
