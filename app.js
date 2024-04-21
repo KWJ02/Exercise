@@ -76,6 +76,7 @@ app.post('/signIn', (req, res) => {
     }
   })
 })
+// **********************************로그아웃
 app.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if(err){
