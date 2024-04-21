@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "express": "^4.19.2",
+    "express-mysql-session": "^3.0.1",
     "express-session": "^1.18.0",
     "jade": "^1.11.0",
     "mysql": "^2.18.1",

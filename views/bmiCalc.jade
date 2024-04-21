@@ -172,7 +172,7 @@ html(lang="en")
                 i(style="font-size : 30px; color : blue") #{bmi.normalMinimumWeight}kg ~ #{bmi.normalMaximumWeight}kg
                 |  입니다.
 
-              .bar-graph(style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px;")
+              .bar-graph(style="display: flex; align-items: center; justify-content: space-between; margin-top: 50px;")
                 div(style="width: 15%; background-color: #00bfff; height: 40px; border-radius: 5px; text-align: center;")
                   p(style="margin-top: 4px; color : white; font-size: 20px;") 저체중
                 div(style="width: 15%; background-color: #228b22; height: 40px; border-radius: 5px;")
@@ -185,6 +185,7 @@ html(lang="en")
                   p(style="margin-top: 4px; color : white; font-size: 20px;") 비만Ⅱ
                 div(style="width: 15%; background-color: #00008b; height: 40px; border-radius: 5px;")
                   p(style="margin-top: 4px; color : white; font-size: 20px;") 비만Ⅲ
+
               .bar-graph(style="margin-top: 5px; display: flex; justify-content: start;")
                 span.value(style="width: 2%; text-align: center;") 0
                 span.value(style="width: 28%; text-align: center;") 18.5
@@ -192,6 +193,12 @@ html(lang="en")
                 span.value(style="width: 28%; text-align: center;") 30
                 span.value(style="width: 7%; text-align: center;") 35
                 span.value(style="width: 26%; text-align: center;") 40
+
+              .form_container(style="margin-top : 70px;")  
+              form#bmiRecordForm(action="/bmiCalc/bmiRecord" method="post" style="display: inline; align-items: center; margin-right : 10px;")
+                input.btn.btn-primary(type="submit" value="BMI 기록하기" style="width: 45%;" onclick="recordBMI()" id="recordButton")
+              form(action="/exerciseRec" method="post" style="display: inline; align-items: center; margin-left : 10px;")
+                input.btn.btn-dark(type="submit" value="운동 추천받기" style="width: 45%;")
               
     else
       .container(style="margin-top : 80px;")
@@ -309,6 +316,27 @@ html(lang="en")
     document.addEventListener("DOMContentLoaded", function() {
       submitOn();
     });
+  
+  script.
+    function recordBMI() {
+        fetch('/checkLogin')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('서버 응답 오류');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.loggedIn) {
+                    document.getElementById("bmiRecordForm").submit();
+                } else {
+                    alert('로그인이 필요합니다.');
+                }
+            })
+            .catch(error => {
+                console.error('오류 발생:', error);
+            });
+    }
 
   script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
   
