@@ -5,7 +5,7 @@ const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
   password : '',
-  database : 'ER'
+  database : 'ER' // 데이터베이스 이름 유의
 })
 const app = express()
 
