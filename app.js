@@ -130,13 +130,14 @@ app.get('/dashboard', (req, res) => {
 // ********************************** bmi 계산기
 app.get('/bmiCalc', (req, res) => {
   if(req.session.user_id){
+    let alertMessage = req.query.alertMessage
     let sql = 'SELECT name from users WHERE user_id = ?'
     conn.query(sql, req.session.user_id, (err, result) => {
       if(err){
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('bmiCalc', {name : result[0].name})
+        res.render('bmiCalc', {name : result[0].name, alertMessage : alertMessage})
       }
     })
   } else {
@@ -167,12 +168,28 @@ app.post('/bmiCalc', (req, res) => {
   }
 })
 
-// ********************************** bmi 값 저장
+// ********************************** bmi 값 저장, 새로고침은 되는데 값 저장이 안됨
 app.post('/bmiCalc/bmiRecord', (req, res) => {
-  if (req.session.user_id) {
-    console.log('저장')
+  let gender = req.body.gender
+  let age = req.body.age
+  let height = req.body.height
+  let weight = req.body.weight
+  let bmi = ((weight / (height * height)) * 10000).toFixed(2)
+  let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
+  let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1)
+
+  if(req.session.user_id){
+    let sql = 'SELECT name from users WHERE user_id = ?'
+    conn.query(sql, req.session.user_id, (err, result) => {
+      if(err){
+        console.log(err)
+        res.status(500).send('Internal Server Error')
+      } else {
+        res.render('bmiCalc', {alertMessage : '대시보드에 저장되었습니다!', name : result[0].name, bmi : {bmi, normalMinimumWeight, normalMaximumWeight}, age : age, gender : gender, height : height, weight : weight})
+      }
+    })
   } else {
-    res.render('signIn', {message: '로그인이 필요합니다.'});
+    res.render('bmiCalc')
   }
 });
 
@@ -187,8 +204,16 @@ app.get('/checkLogin', (req, res) => {
 
 // ********************************** 운동추천 폼
 app.get('/exerciseRec', (req, res) => {
-  if(req.session.id){
-    res.render('exerciseRec', {name : req.session.name})
+  if(req.session.user_id){
+    let sql = 'SELECT name from users WHERE user_id = ?'
+    conn.query(sql, req.session.user_id, (err, result) => {
+      if(err){
+        console.log(err)
+        res.status(500).send('Internal Server Error')
+      } else {
+        res.render('exerciseRec', {name : result[0].name})
+      }
+    })
   } else {
     res.render('exerciseRec')
   }
@@ -202,8 +227,16 @@ app.get('/exerciseLib', (req, res) => {
 
 // ********************************** 커뮤니티
 app.get('/community', (req, res) => {
-  if(req.session.id){
-    res.render('community', {name : req.session.name})
+  if(req.session.user_id){
+    let sql = 'SELECT name from users WHERE user_id = ?'
+    conn.query(sql, req.session.user_id, (err, result) => {
+      if(err){
+        console.log(err)
+        res.status(500).send('Internal Server Error')
+      } else {
+        res.render('community', {name : result[0].name})
+      }
+    })
   } else {
     res.render('community')
   }
