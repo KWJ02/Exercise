@@ -164,7 +164,7 @@ app.post('/bmiCalc', (req, res) => {
       }
     })
   } else {
-    res.render('bmiCalc')
+    res.render('bmiCalc', {bmi : {bmi, normalMinimumWeight, normalMaximumWeight}, age : age, gender : gender, height : height, weight : weight})
   }
 })
 
@@ -189,7 +189,7 @@ app.post('/bmiCalc/bmiRecord', (req, res) => {
       }
     })
   } else {
-    res.render('bmiCalc')
+    res.render('signIn')
   }
 });
 
