@@ -46,8 +46,8 @@ app.get('/test', (req, res) => {
 app.get('/test1', (req, res) => {
   res.sendFile(__dirname + '/public/test1.html')
 })
-app.get('/test3', (req, res) => {
-  res.sendFile(__dirname + '/public/test3.html')
+app.get('/test2', (req, res) => {
+  res.sendFile(__dirname + '/public/test2.html')
 })
 
 // ********************************** 홈페이지
@@ -257,4 +257,8 @@ app.get('/community', (req, res) => {
 
 app.get('/community', (req, res) => {
   res.sendFile(__dirname + '/public/community.html')
+})
+
+app.get('/myPage', (req, res) => {
+  res.render('myPage')
 })
