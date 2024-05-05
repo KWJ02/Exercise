@@ -1,11 +1,12 @@
 const express = require('express')
+const cookieParser = require('cookie-parser')
 const mysql = require('mysql')
 const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session)
 const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
-  password : 'a123456&',
+  password : '',
   database : 'ER' // 데이터베이스 이름 유의
 })
 const app = express()
@@ -19,7 +20,7 @@ app.use(session({
     host : 'localhost',
     port : 3306,
     user : 'root',
-    password : 'a123456&',
+    password : '',
     database : 'ER'
   })
 }))
@@ -27,6 +28,7 @@ app.use(session({
 app.use(express.static(__dirname + "/public"));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
 
 app.set('view engine', 'jade')
 app.set('views', 'views')
@@ -41,8 +43,8 @@ app.listen(3000, (err) => {
 app.get('/test', (req, res) => {
   res.sendFile(__dirname + '/public/test.html')
 })
-app.get('/test2', (req, res) => {
-  res.sendFile(__dirname + '/public/test2.html')
+app.get('/test1', (req, res) => {
+  res.sendFile(__dirname + '/public/test1.html')
 })
 app.get('/test3', (req, res) => {
   res.sendFile(__dirname + '/public/test3.html')
@@ -152,6 +154,14 @@ app.post('/bmiCalc', (req, res) => {
   let bmi = ((weight / (height * height)) * 10000).toFixed(2)
   let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
   let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1)
+  res.cookie('gender', gender)
+  res.cookie('age', age)
+  res.cookie('height', height)
+  res.cookie('weight', weight)
+  res.cookie('bmi', bmi)
+  res.cookie('normalMinimumWeight', normalMinimumWeight)
+  res.cookie('normalMaximumWeight', normalMaximumWeight)
+  
 
   if(req.session.user_id){
     let sql = 'SELECT name from users WHERE user_id = ?'
@@ -160,23 +170,17 @@ app.post('/bmiCalc', (req, res) => {
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('bmiCalc', {name : result[0].name, bmi : {bmi, normalMinimumWeight, normalMaximumWeight}, age : age, gender : gender, height : height, weight : weight})
+        res.render('bmiCalc', {name : result[0].name, bmi : bmi, normalMinimumWeight : normalMinimumWeight, normalMaximumWeight : normalMaximumWeight, age : age, gender : gender, height : height, weight : weight})
       }
     })
   } else {
-    res.render('bmiCalc', {bmi : {bmi, normalMinimumWeight, normalMaximumWeight}, age : age, gender : gender, height : height, weight : weight})
+    res.render('bmiCalc', {bmi : bmi, normalMinimumWeight : normalMinimumWeight, normalMaximumWeight : normalMaximumWeight, age : age, gender : gender, height : height, weight : weight})
   }
 })
 
-// ********************************** bmi 값 저장, 새로고침은 되는데 값 저장이 안됨
+// ********************************** bmi기록, 운동추천 버튼을 한개로 합쳐야겠음
 app.post('/bmiCalc/bmiRecord', (req, res) => {
-  let gender = req.body.gender
-  let age = req.body.age
-  let height = req.body.height
-  let weight = req.body.weight
-  let bmi = ((weight / (height * height)) * 10000).toFixed(2)
-  let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
-  let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1)
+  const userInput = req.cookies
 
   if(req.session.user_id){
     let sql = 'SELECT name from users WHERE user_id = ?'
@@ -185,11 +189,20 @@ app.post('/bmiCalc/bmiRecord', (req, res) => {
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('bmiCalc', {alertMessage : '대시보드에 저장되었습니다!', name : result[0].name, bmi : {bmi, normalMinimumWeight, normalMaximumWeight}, age : age, gender : gender, height : height, weight : weight})
+        let sql2 = 'INSERT INTO userinput (age, height, weight, bmi) VALUES (?,?,?,?)'
+        conn.query(sql2, [userInput.age, userInput.height, userInput.weight, userInput.bmi], (err, rows) => {
+          if(err){
+            console.log(err)
+            res.status(500).send('Internal Server Error')
+          } else {
+            console.log(rows[0])
+            res.render('bmiCalc', {alertMessage : '대시보드에 저장되었습니다!'})
+          }
+        })
       }
     })
   } else {
-    res.render('signIn')
+    res.redirect('../signIn')
   }
 });
 

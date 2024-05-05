@@ -143,42 +143,48 @@ html(lang="en")
                   button.btn.btn-primary.btn-block(type="submit" id="btn") 측정하기
           .col-md-6
             .container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white; margin-left: 10px; text-align : center; height : 504.75px")
-              if bmi.bmi < 18.5
+              if bmi < 18.5
                 h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.underweight(style="font-size : 25px;") 저체중
+                  | 당신의 신체질량지수는 #{bmi}(으)로 
+                  br
+                  i.underweight(style="font-size : 35px;") 저체중
                   |  입니다.
               else if bmi.bmi < 25
                 h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.normalweight(style="font-size : 25px;") 정상
+                  | 당신의 신체질량지수는 #{bmi}(으)로 
+                  br
+                  i.normalweight(style="font-size : 35px;") 정상
                   |  입니다.
               else if bmi.bmi < 30
                 h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.overweight(style="font-size : 25px;") 과체중
+                  | 당신의 신체질량지수는 #{bmi}(으)로 
+                  br
+                  i.overweight(style="font-size : 35px;") 과체중
                   |  입니다.
               else if bmi.bmi < 35
                 h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.level_1_obesity(style="font-size : 25px;") 1단계 비만
+                  | 당신의 신체질량지수는 #{bmi}(으)로 
+                  br
+                  i.level_1_obesity(style="font-size : 35px;") 1단계 비만
                   |  입니다.
               else if bmi.bmi < 40
                 h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.level_2_obesity(style="font-size : 25px;") 2단계 비만
+                  | 당신의 신체질량지수는 #{bmi}(으)로 
+                  br
+                  i.level_2_obesity(style="font-size : 35px;") 2단계 비만
                   |  입니다.
               else
                 h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.level_3_obesity(style="font-size : 25px;") 3단계 비만
+                  | 당신의 신체질량지수는 #{bmi}(으)로 
+                  br
+                  i.level_3_obesity(style="font-size : 35px;") 3단계 비만
                   |  입니다.
               br
-              p(style="font-size : 20px;") 
+              p(style="font-size : 20px; margin-top : 15px;") 
                 i(style="font-size : 30px;") #{height}
                 |  cm에 해당하는 정상 지수 범위는
                 br
-                i(style="font-size : 30px; color : blue") #{bmi.normalMinimumWeight}kg ~ #{bmi.normalMaximumWeight}kg
+                i(style="font-size : 30px; color : blue") #{normalMinimumWeight}kg ~ #{normalMaximumWeight}kg
                 |  입니다.
 
               .bar-graph(style="display: flex; align-items: center; justify-content: space-between; margin-top: 50px;")
@@ -203,11 +209,9 @@ html(lang="en")
                 span.value(style="width: 7%; text-align: center;") 35
                 span.value(style="width: 26%; text-align: center;") 40
 
-              .form_container(style="margin-top : 70px;")  
+              .form_container(style="margin-top : 100px;")  
               form#bmiRecordForm(action="/bmiCalc/bmiRecord" method="post" style="display: inline; align-items: center; margin-right : 10px;")
-                input.btn.btn-primary(type="submit" value="BMI 기록하기" style="width: 45%;" onclick="recordBMI()" id="recordButton")
-              form(action="/exerciseRec" method="get" style="display: inline; align-items: center; margin-left : 10px;")
-                input.btn.btn-dark(type="submit" value="운동 추천받기" style="width: 45%;")
+                input.btn.btn-dark(type="submit" value="BMI 기록하고 운동 추천받기" style="width: 100%;" onclick="recordBMI()" id="recordButton")
               
     else
       .container(style="margin-top : 80px;")
@@ -349,6 +353,7 @@ html(lang="en")
   script. 
     if("#{alertMessage}") {
       alert("#{alertMessage}")
+      window.location.href = '/exerciseRec'
     }
   script.
       document.getElementById("logoutButton").addEventListener("click", function(event) {
@@ -375,7 +380,7 @@ html(lang="en")
     script.
       document.addEventListener("DOMContentLoaded", function() {
         // BMI 계산 값 가져오기
-        const bmiValue = #{bmi.bmi}; // 사용자의 BMI 값 가져오기
+        const bmiValue = #{bmi}; // 사용자의 BMI 값 가져오기
         console.log(bmiValue)
 
         // BMI 값에 따라 클래스 선택
