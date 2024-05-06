@@ -5,9 +5,9 @@ const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session)
 const conn = mysql.createConnection({
   host : 'localhost',
-  user : 'root',
-  password : '',
-  database : 'ER' // 데이터베이스 이름 유의
+  user : 'db',
+  password : 'a123456&',
+  database : 'db' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -19,9 +19,9 @@ app.use(session({
   store: new MySQLStore({
     host : 'localhost',
     port : 3306,
-    user : 'root',
-    password : '',
-    database : 'ER'
+    user : 'db',
+    password : 'a123456&',
+    database : 'db'
   })
 }))
 
@@ -240,24 +240,72 @@ app.get('/exerciseLib', (req, res) => {
 
 // ********************************** 커뮤니티
 app.get('/community', (req, res) => {
-  if(req.session.user_id){
-    let sql = 'SELECT name from users WHERE user_id = ?'
-    conn.query(sql, req.session.user_id, (err, result) => {
-      if(err){
-        console.log(err)
-        res.status(500).send('Internal Server Error')
+    if(req.session.user_id){
+      let sql = 'SELECT name from users WHERE user_id = ?'
+      conn.query(sql, req.session.user_id, (err, result) => {
+        if(err){
+          console.log(err)
+          res.status(500).send('Internal Server Error')
+        } else {
+          res.render('community', {name : result[0].name})
+        }
+      })
+    } else {
+      res.render('community')
+    }
+  })
+  
+  // 커뮤니티 페이지에서 게시물 조회
+  app.get('/community', (req, res) => {
+    const sql = 'SELECT * FROM posts';
+    conn.query(sql, (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error fetching posts');
       } else {
-        res.render('community', {name : result[0].name})
+        console.log('Posts fetched successfully');
+        res.render('community', { posts: result }); // 커뮤니티 페이지에 게시물 데이터를 전달하여 렌더링
       }
-    })
-  } else {
-    res.render('community')
-  }
-})
-
-app.get('/community', (req, res) => {
-  res.sendFile(__dirname + '/public/community.html')
-})
+    });
+  });
+  
+  
+  // 글쓰기 페이지 렌더링
+  app.get('/write', (req, res) => {
+    // 세션에서 사용자 정보 가져오기
+    const userId = req.session.user_id;
+    if(userId){
+      let sql = 'SELECT name from users WHERE user_id = ?'
+      conn.query(sql, userId, (err, result) => {
+        if(err){
+          console.log(err)
+          res.status(500).send('Internal Server Error')
+        } else {
+          res.render('write', { name: result[0].name }) // write 파일을 렌더링하며 사용자 이름 전달
+        }
+      })
+    } else {
+      res.redirect('/signIn'); // 로그인 페이지로 리다이렉트
+    }
+  })
+  
+  // 게시물 작성 페이지에서 게시물을 DB에 저장하는 엔드포인트
+  app.post('/write', (req, res) => {
+    const { title, content, name } = req.body;
+    const post = { title, content, name };
+  
+    const sql = 'INSERT INTO posts (title, content, name) VALUES (?, ?, ?)';
+    conn.query(sql, [title, content, name], (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error creating post');
+      } else {
+        console.log('Post created successfully');
+        res.redirect('/community'); // 작성이 완료되면 커뮤니티 페이지로 리다이렉트
+      }
+    });
+  });
+    
 
 app.get('/myPage', (req, res) => {
   res.render('myPage')

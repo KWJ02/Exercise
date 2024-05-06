@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="quote.js"></script>
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -102,14 +103,6 @@
 
 </head>
 <body>
-  <script>
-    fetch('lib.php')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('includedContent').innerHTML = data;
-        })
-        .catch(error => console.error('파일을 불러오는 중 오류 발생:', error));
-  </script>
 
     <nav class="navbar navbar-expand-md bg-dark sticky-top border-bottom" data-bs-theme="dark">
         <div class="container">
@@ -130,7 +123,7 @@
                 <li class="nav-item"><a class='nav-link' href='/'>E-Recommender</a></li>
                 <li class="nav-item"><a class="nav-link" href="/bmiCalc">BMI 측정</a></li>
                 <li class="nav-item"><a class="nav-link" href="/exerciseRec">운동 추천</a></li>
-                <li class="nav-item"><a class="nav-link" href="/community.html">커뮤니티</a></li>
+                <li class="nav-item"><a class="nav-link" href="/community">커뮤니티</a></li>
                 <li class="nav-item"><a class="nav-link" href="/signIn">로그인</a></li>
               </ul>
             </div>
@@ -138,7 +131,7 @@
         </div>
       </nav>
     
-<form action="writePost.php" method="post">
+<form action="community" method="post">
 <table> 
     <tr><td><h2 style="color: black;">글쓰기</h2></td></tr>
     <tr><td class="header" style="color: black">Title</td></tr>
@@ -148,6 +141,28 @@
     <tr><td><input type="submit" value="등록" onclick="alert('작성 완료!')"></td></tr>
 </table>
 </form>
+
+<script>
+  function submitOn() {
+    const title = document.getElementById("title")
+    const name = document.getElementById("detail")
+    const btn = document.getElementById("submit_button")
+
+    function checkInput() {
+      if (title.value.trim() !== "" && detail.value.trim() !== "") {
+        btn.disabled = false;
+      } else {
+        btn.disabled = true;
+      }
+    } 
+    title.addEventListener("input", checkInput);
+    detail.addEventListener("input", checkInput);
+   }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    submitOn();
+  });
+</script>
 
 <footer class="container py-5">
     <div class="row">
@@ -195,6 +210,32 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    document.getElementById("logoutButton").addEventListener("click", function(event) {
+        event.preventDefault();
+        var url = "/logout";
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // 로그아웃 요청이 성공하면 페이지를 다시로드
+                    window.location.reload();
+                } else {
+                    console.error("로그아웃 실패");
+                }
+            }
+        };
+        xhr.setRequestHeader("Content-Type", "application/json");
+        var requestBody = {}; // 빈 객체로 설정
+        xhr.send(JSON.stringify(requestBody));
+    });
+</script>
+
+
+
+
 
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
