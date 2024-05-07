@@ -5,9 +5,9 @@ const session = require('express-session')
 const MySQLStore = require('express-mysql-session')(session)
 const conn = mysql.createConnection({
   host : 'localhost',
-  user : 'db',
-  password : 'a123456&',
-  database : 'db' // 데이터베이스 이름 유의
+  user : 'root',
+  password : '',
+  database : 'ER' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -19,9 +19,9 @@ app.use(session({
   store: new MySQLStore({
     host : 'localhost',
     port : 3306,
-    user : 'db',
-    password : 'a123456&',
-    database : 'db'
+    user : 'root',
+    password : '',
+    database : 'ER'
   })
 }))
 
@@ -178,7 +178,7 @@ app.post('/bmiCalc', (req, res) => {
   }
 })
 
-// ********************************** bmi기록, 운동추천 버튼을 한개로 합쳐야겠음
+// ********************************** bmi기록
 app.post('/bmiCalc/bmiRecord', (req, res) => {
   const userInput = req.cookies
 
