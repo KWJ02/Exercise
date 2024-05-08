@@ -73,8 +73,13 @@ html(lang="en")
                 li.nav-item.dropdown
                   a.nav-link.dropdown-toggle(href="#", role="button", data-bs-toggle="dropdown", aria-expanded="false")= name + '님'
                   .dropdown-menu
-                    a.dropdown-item(href="/myPage") 마이페이지
-                    a#logoutButton.dropdown-item(href="/main") 로그아웃
+                    - if(id === 'admin')
+                      a.dropdown-item(href="/myPage") 관리자 페이지
+                      a#logoutButton.dropdown-item(href="/main") 로그아웃
+                  
+                    - else
+                      a.dropdown-item(href="/myPage") 마이페이지
+                      a#logoutButton.dropdown-item(href="/main") 로그아웃
               else
                 li.nav-item
                   a.nav-link(href="/signIn") 로그인

@@ -214,7 +214,7 @@ html(lang='en', data-bs-theme='auto')
                   use(xlink:href='#calendar3')
                 | This week
           canvas.my-4.w-100#myChart(width='900', height='380')
-          h2 최근 기록
+          h2 #{name}님의 최근 운동 기록 (#{month}월 #{sevenDaysAgo}일 ~ #{month}월 #{sevenDaysAgo + 6}일)
           br
           .table-responsive.small
             table.table.table-striped.table-sm(style='text-align : center;')
@@ -228,14 +228,49 @@ html(lang='en', data-bs-theme='auto')
                   th(scope='col') 단계
               tbody
                 tr
-                  td 1,001
+                  td #{month}월 #{sevenDaysAgo}일
                   td random
                   td data
                   td placeholder
                   td text
                   td
                 tr
-                  td 1,002
+                  td #{month}월 #{sevenDaysAgo + 1}일
+                  td placeholder
+                  td irrelevant
+                  td visual
+                  td layout
+                  td
+                tr
+                  td #{month}월 #{sevenDaysAgo + 2}일
+                  td placeholder
+                  td irrelevant
+                  td visual
+                  td layout
+                  td
+                tr
+                  td #{month}월 #{sevenDaysAgo + 3}일
+                  td placeholder
+                  td irrelevant
+                  td visual
+                  td layout
+                  td
+                tr
+                  td #{month}월 #{sevenDaysAgo + 4}일
+                  td placeholder
+                  td irrelevant
+                  td visual
+                  td layout
+                  td
+                tr
+                  td #{month}월 #{sevenDaysAgo + 5}일
+                  td placeholder
+                  td irrelevant
+                  td visual
+                  td layout
+                  td
+                tr
+                  td #{month}월 #{sevenDaysAgo + 6}일
                   td placeholder
                   td irrelevant
                   td visual

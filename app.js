@@ -2,6 +2,7 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const mysql = require('mysql')
 const session = require('express-session')
+const jwt = require('jsonwebtoken')
 const MySQLStore = require('express-mysql-session')(session)
 const conn = mysql.createConnection({
   host : 'localhost',
@@ -127,13 +128,14 @@ app.post('/signUp', (req, res) => {
 app.get('/bmiCalc', (req, res) => {
   if(req.session.user_id){
     let alertMessage = req.query.alertMessage
-    let sql = 'SELECT name from users WHERE user_id = ?'
+    let sql = 'SELECT name, user_id from users WHERE user_id = ?'
     conn.query(sql, req.session.user_id, (err, result) => {
       if(err){
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('bmiCalc', {name : result[0].name, alertMessage : alertMessage})
+        console.log(result[0])
+        res.render('bmiCalc', {name : result[0].name, alertMessage : alertMessage, id : result[0].user_id})
       }
     })
   } else {
@@ -148,13 +150,22 @@ app.post('/bmiCalc', (req, res) => {
   let bmi = ((weight / (height * height)) * 10000).toFixed(2)
   let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
   let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1)
-  res.cookie('gender', gender)
-  res.cookie('age', age)
-  res.cookie('height', height)
-  res.cookie('weight', weight)
-  res.cookie('bmi', bmi)
-  res.cookie('normalMinimumWeight', normalMinimumWeight)
-  res.cookie('normalMaximumWeight', normalMaximumWeight)
+
+  const genderToken = jwt.sign({ gender }, '1asdf23');
+  const ageToken = jwt.sign({ age }, '3df21');
+  const heightToken = jwt.sign({ height }, '246df234');
+  const weightToken = jwt.sign({ weight }, '12adsf4563');
+  const bmiToken = jwt.sign({ bmi }, '3s45634ds56');
+  const normalMinimumWeightToken = jwt.sign({ normalMinimumWeight }, '56ad8');
+  const normalMaximumWeightToken = jwt.sign({ normalMaximumWeight }, '12adszg3');
+
+  res.cookie('gender', genderToken, { httpOnly: true, secure: true })
+  res.cookie('age', ageToken, { httpOnly: true, secure: true })
+  res.cookie('height', heightToken, { httpOnly: true, secure: true })
+  res.cookie('weight', weightToken, { httpOnly: true, secure: true })
+  res.cookie('bmi', bmiToken, { httpOnly: true, secure: true })
+  res.cookie('normalMinimumWeight', normalMinimumWeightToken, { httpOnly: true, secure: true })
+  res.cookie('normalMaximumWeight', normalMaximumWeightToken, { httpOnly: true, secure: true })
   
 
   if(req.session.user_id){
@@ -212,18 +223,23 @@ app.get('/checkLogin', (req, res) => {
 // ********************************** 운동추천 폼
 app.get('/exerciseRec', (req, res) => {
   if(req.session.user_id){
-    let sql = 'SELECT name from users WHERE user_id = ?'
+    let sql = 'SELECT name, user_id from users WHERE user_id = ?'
     conn.query(sql, req.session.user_id, (err, result) => {
       if(err){
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('exerciseRec', {name : result[0].name})
+        res.render('exerciseRec', {name : result[0].name, id : result[0].user_id})
       }
     })
   } else {
     res.render('exerciseRec')
   }
+})
+
+app.post('/exerciseRec', (req, res) => {
+  let sql = 'SELECT name FROM exercises WHERE pos = ? AND part = ?'
+
 })
 
 // ********************************** 운동 라이브러리
@@ -235,13 +251,13 @@ app.get('/exerciseLib', (req, res) => {
 // ********************************** 커뮤니티
 app.get('/community', (req, res) => {
     if(req.session.user_id){
-      let sql = 'SELECT name from users WHERE user_id = ?'
+      let sql = 'SELECT name, user_id from users WHERE user_id = ?'
       conn.query(sql, req.session.user_id, (err, result) => {
         if(err){
           console.log(err)
           res.status(500).send('Internal Server Error')
         } else {
-          res.render('community', {name : result[0].name})
+          res.render('community', {name : result[0].name, id : result[0].user_id})
         }
       })
     } else {
@@ -303,13 +319,19 @@ app.get('/community', (req, res) => {
 
 app.get('/myPage', (req, res) => {
   if(req.session.user_id){
+    let date = new Date()
+    let month = date.getMonth() + 1
+    let sevenDaysAgo = new Date(date);
+    sevenDaysAgo.setDate(date.getDate() - 7)
+    let dayOfSevenDaysAgo = sevenDaysAgo.getDate();
+
     const userId = req.session.user_id
     sql = 'SELECT name FROM users WHERE user_id = ?'
     conn.query(sql, userId, (err, result) => {
       if(err){
         res.send('Internal Server Error')
       } else {
-        res.render('myPage', {name : result[0].name})
+        res.render('myPage', {name : result[0].name, month : month, sevenDaysAgo : dayOfSevenDaysAgo})
       }
     })
   } else {
