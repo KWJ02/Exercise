@@ -30,7 +30,22 @@ html(lang="en")
         background-repeat : no-repeat;
         background-size : cover;
       }
-      
+
+      .btn {
+        display: block;
+        position: relative;
+        float: left;
+        width: 120px;
+        padding: 0;
+        margin: 10px 20px 10px 0;
+        font-weight: 600;
+        text-align: center;
+        line-height: 50px;
+        color: black;
+        border-radius: 5px;
+        transition: all 0.2s ;
+      }
+
   body
     nav.navbar.navbar-expand-md.bg-dark.sticky-top.border-bottom(data-bs-theme="dark")
       .container
@@ -66,12 +81,55 @@ html(lang="en")
               
     // 본문 영역
     
-    .container(style="margin-top : 80px;")
-    .row.justify-content-center
-      .col-md-6
-        .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;")
-          h2.text-center.mb-4 운동 추천 폼
-          
+    .container(style="margin-top: 80px;")
+      .row.justify-content-center
+        .col-md-8.text-center
+          .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;")
+            h2.text-center.mb-4 항목을 선택하세요.
+            p(style="text-align : left;") 장소를 선택하세요.
+            hr
+            .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
+              input(type='radio', class='btn-check', name='options-position', id='home', autocomplete='off')
+              label(for='home', class='btn btn-outline-primary' style="margin-right : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 집에서
+
+              input(type='radio', class='btn-check', name='options-position', id='gym', autocomplete='off')
+              label(for='gym', class='btn btn-outline-primary' style="margin-left : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 헬스장에서
+              
+            p(style="text-align : left;") 부위를 선택하세요 
+            hr
+            .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
+              input(type='radio', class='btn-check', name='options-parts', id='shoulder', autocomplete='off' disabled)
+              label(for='shoulder', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 어깨
+
+              input(type='radio', class='btn-check', name='options-parts', id='chest', autocomplete='off' disabled)
+              label(for='chest', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 가슴
+
+              input(type='radio', class='btn-check', name='options-parts', id='back', autocomplete='off' disabled)
+              label(for='back', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 등
+
+              input(type='radio', class='btn-check', name='options-parts', id='core', autocomplete='off' disabled)
+              label(for='core', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 코어
+
+              input(type='radio', class='btn-check', name='options-parts', id='lowerBody', autocomplete='off' disabled)
+              label(for='lowerBody', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하체
+
+            p(style="text-align : left;") 난이도를 선택하세요.
+            hr
+            .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
+              input(type='radio', class='btn-check', name='options-difficulty', id='hard', autocomplete='off' disabled)
+              label(for='hard', class='btn btn-outline-danger' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 상
+
+              input(type='radio', class='btn-check', name='options-difficulty', id='middle', autocomplete='off' disabled)
+              label(for='middle', class='btn btn-outline-info' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 중
+              
+              input(type='radio', class='btn-check', name='options-difficulty', id='low', autocomplete='off' disabled)
+              label(for='low', class='btn btn-outline-success' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하
+
+            .form_container(style="margin-top : 50px;")
+            form(action="/exerciseRec" method="post" style="display: inline; align-items: center; margin-right : 10px;")
+              input.btn.btn-primary(type="submit" value="제출" style="width: 100%; color : #fff" id="submit_button" disabled)
+
+
           
           
   footer.container.py-5(style='margin-top : 50px;')
@@ -151,7 +209,78 @@ html(lang="en")
         var requestBody = {}; // 빈 객체로 설정
         xhr.send(JSON.stringify(requestBody));
       });
+  
+  script.
+    document.addEventListener('DOMContentLoaded', () => {
+      const posBtn1 = document.getElementById('home')
+      const posBtn2 = document.getElementById('gym')
+      const partBtn1 = document.getElementById('shoulder')
+      const partBtn2 = document.getElementById('chest')
+      const partBtn3 = document.getElementById('back')
+      const partBtn4 = document.getElementById('core')
+      const partBtn5 = document.getElementById('lowerBody')
+      const diffBtn1 = document.getElementById('hard')
+      const diffBtn2 = document.getElementById('middle')
+      const diffBtn3 = document.getElementById('low')
+      const submitBtn = document.getElementById('submit_button')
 
+      // 위치 버튼 이벤트 리스너
+      posBtn1.addEventListener('change', function() {
+        if (posBtn1.checked) {
+          enablePartButtons()
+        }
+      })
+
+      posBtn2.addEventListener('change', function() {
+        if (posBtn2.checked) {
+          enablePartButtons()
+        }
+      })
+
+      // 부위 버튼 이벤트 리스너
+      partBtn1.addEventListener('change', checkDiffButtons)
+      partBtn2.addEventListener('change', checkDiffButtons)
+      partBtn3.addEventListener('change', checkDiffButtons)
+      partBtn4.addEventListener('change', checkDiffButtons)
+      partBtn5.addEventListener('change', checkDiffButtons)
+
+      // 난이도 버튼 이벤트 리스너
+      diffBtn1.addEventListener('change', function() {
+        if (diffBtn1.checked) {
+          submitBtn.disabled = false
+        }
+      })
+
+      diffBtn2.addEventListener('change', function() {
+        if (diffBtn2.checked) {
+          submitBtn.disabled = false
+        }
+      })
+
+      diffBtn3.addEventListener('change', function() {
+        if (diffBtn3.checked) {
+          submitBtn.disabled = false
+        }
+      })
+
+      // 부위 버튼 활성화 함수
+      function enablePartButtons() {
+        partBtn1.disabled = false
+        partBtn2.disabled = false
+        partBtn3.disabled = false
+        partBtn4.disabled = false
+        partBtn5.disabled = false
+      }
+
+      // 난이도 버튼 활성화 함수
+      function checkDiffButtons() {
+        if (partBtn1.checked || partBtn2.checked || partBtn3.checked || partBtn4.checked || partBtn5.checked) {
+          diffBtn1.disabled = false
+          diffBtn2.disabled = false
+          diffBtn3.disabled = false
+        }
+      }
+    })
   script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
   
   

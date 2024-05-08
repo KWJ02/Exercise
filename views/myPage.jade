@@ -157,25 +157,26 @@ html(lang='en', data-bs-theme='auto')
             .offcanvas-body.d-md-flex.flex-column.p-0.pt-lg-3.overflow-y-auto
               ul.nav.flex-column
                 li.nav-item
-                  a.nav-link.d-flex.align-items-center.gap-2.active(href='#', aria-current='page')
+                  a.nav-link.d-flex.align-items-center.gap-2.active(href='/myPage', aria-current='page')
                     svg.bi
                       use(xlink:href='#house-fill')
                     | 마이페이지 홈
                 li.nav-item
-                  a.nav-link.d-flex.align-items-center.gap-2(href='#')
+                  a.nav-link.d-flex.align-items-center.gap-2(href='/myPage/exerciseReport')
                     svg.bi
                       use(xlink:href='#graph-up')
                     | 기록 일지
                 li.nav-item
-                  a.nav-link.d-flex.align-items-center.gap-2(href='#')
+                  a.nav-link.d-flex.align-items-center.gap-2(href='/myPage/recExercisList')
                     svg.bi
                       use(xlink:href='#file-earmark-text')
                     | 추천받은 운동 목록
                 li.nav-item
-                  a.nav-link.d-flex.align-items-center.gap-2(href='#')
-                    svg.bi
-                      use(xlink:href='#door-closed')
-                    | 로그아웃
+                  form(action='/logout' method='post')
+                    button.nav-link.d-flex.align-items-center.gap-2(type='submit')
+                      svg.bi
+                        use(xlink:href='#door-closed')
+                      | 로그아웃
               hr.my-3
               ul.nav.flex-column
                 li.nav-item
@@ -203,7 +204,7 @@ html(lang='en', data-bs-theme='auto')
               
         main.col-md-9.ms-sm-auto.col-lg-10.px-md-4
           .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
-            h1.h2 ~~님의 페이지
+            h1.h2 #{name}님의 페이지
             .btn-toolbar.mb-2.mb-md-0
               .btn-group.me-2
                 button.btn.btn-sm.btn-outline-secondary Share

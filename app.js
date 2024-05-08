@@ -53,13 +53,13 @@ app.get('/test2', (req, res) => {
 // ********************************** 홈페이지
 app.get('/main', (req, res) => {
   if(req.session.user_id){
-    let sql = 'SELECT name from users WHERE user_id = ?'
+    let sql = 'SELECT name, user_id from users WHERE user_id = ?'
     conn.query(sql, req.session.user_id, (err, result) => {
       if(err){
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('main', {name : result[0].name})
+        res.render('main', {name : result[0].name, id : result[0].user_id})
       }
     })
   } else {
@@ -303,7 +303,15 @@ app.get('/community', (req, res) => {
 
 app.get('/myPage', (req, res) => {
   if(req.session.user_id){
-    res.render('myPage')
+    const userId = req.session.user_id
+    sql = 'SELECT name FROM users WHERE user_id = ?'
+    conn.query(sql, userId, (err, result) => {
+      if(err){
+        res.send('Internal Server Error')
+      } else {
+        res.render('myPage', {name : result[0].name})
+      }
+    })
   } else {
     res.redirect('/signIn')
   }
