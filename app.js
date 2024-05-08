@@ -134,7 +134,6 @@ app.get('/bmiCalc', (req, res) => {
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        console.log(result[0])
         res.render('bmiCalc', {name : result[0].name, alertMessage : alertMessage, id : result[0].user_id})
       }
     })
