@@ -65,140 +65,15 @@ html(lang="en")
                   a.nav-link(href="/signIn") 로그인
               
     // 본문 영역
-    if(bmi)
-      .container(style="margin-top: 80px;")
-        .row.justify-content-center
-          .col-md-6
-            .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white; margin-right: 10px;")
-              h2.text-center.mb-4 BMI 측정기
-              form.row.g-3(action="/bmiCalc", method="post")
-                .col-md-12
-                  label.form-label 성별
-                  .form-check
-                    input.form-check-input(type="radio", name="gender", id="male", value="male", checked=(gender === 'male'))
-                    label.form-check-label(for="male") 남성
-                    | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    input.form-check-input(type="radio", name="gender", id="female", value="female", checked=(gender === 'female'))
-                    label.form-check-label(for="female") 여성
-                hr
-                .col-md-12
-                  label.form-label(for="age") 나이
-                  input.form-control(type="number", name="age", id="age", placeholder="나이를 입력하세요." value= age)
-                br
-                br
-                .col-md-12
-                  label.form-label(for="height") 신장
-                  input.form-control(type="number", name="height", id="height", placeholder="신장(cm)을 입력하세요." value= height step="0.01")
-                br
-                br
-                .col-md-12
-                  label.form-label(for="weight") 몸무게
-                  input.form-control(type="number", name="weight", id="weight", placeholder="몸무게(kg)를 입력하세요." value= weight step="0.01")
-                br
-                br
-                .col-md-12
-                  button.btn.btn-primary.btn-block(type="submit" id="btn") 측정하기
-          .col-md-6
-            .container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white; margin-left: 10px; text-align : center; height : 504.75px")
-              if bmi.bmi < 18.5
-                h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.underweight(style="font-size : 30px;") 저체중
-                  |  입니다.
-              else if bmi.bmi < 25
-                h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.normalweight(style="font-size : 30px;") 정상
-                  |  입니다.
-              else if bmi.bmi < 30
-                h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.overweight(style="font-size : 30px;") 과체중
-                  |  입니다.
-              else if bmi.bmi < 35
-                h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.level_1_obesity(style="font-size : 30px;") 1단계 비만
-                  |  입니다.
-              else if bmi.bmi < 40
-                h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.level_2_obesity(style="font-size : 30px;") 2단계 비만
-                  |  입니다.
-              else
-                h4
-                  | 당신의 신체질량지수는 #{bmi.bmi}(으)로 
-                  i.level_3_obesity(style="font-size : 30px;") 3단계 비만
-                  |  입니다.
-              br
-              p(style="font-size : 20px;") 
-                i(style="font-size : 30px;") #{height}
-                |  cm에 해당하는 정상 지수 범위는
-                br
-                i(style="font-size : 30px; color : blue") #{bmi.normalMinimumWeight}kg ~ #{bmi.normalMaximumWeight}kg
-                |  입니다.
-
-              .bar-graph(style="display: flex; align-items: center; justify-content: space-between; margin-top: 50px;")
-                div(style="width: 15%; background-color: #228b22; height: 40px; border-radius: 5px; text-align: center;")
-                  p(style="margin-top: 4px; color : white; font-size: 20px;") 저체중
-                div(style="width: 15%; background-color: blue; height: 40px; border-radius: 5px;")
-                  p(style="margin-top: 4px; color : white; font-size: 20px;") 정상
-                div(style="width: 15%; background-color: #cd853f; height: 40px; border-radius: 5px;")
-                  p(style="margin-top: 4px; color : white; font-size: 20px;") 과체중
-                div(style="width: 15%; background-color: #ff0000; height: 40px; border-radius: 5px;")
-                  p(style="margin-top: 4px; color : white; font-size: 20px;") 비만Ⅰ
-                div(style="width: 15%; background-color: #9370db; height: 40px; border-radius: 5px;")
-                  p(style="margin-top: 4px; color : white; font-size: 20px;") 비만Ⅱ
-                div(style="width: 15%; background-color: #00008b; height: 40px; border-radius: 5px;")
-                  p(style="margin-top: 4px; color : white; font-size: 20px;") 비만Ⅲ
-
-              .bar-graph(style="margin-top: 5px; display: flex; justify-content: start;")
-                span.value(style="width: 2%; text-align: center;") 0
-                span.value(style="width: 28%; text-align: center;") 18.5
-                span.value(style="width: 6%; text-align: center;") 25
-                span.value(style="width: 28%; text-align: center;") 30
-                span.value(style="width: 7%; text-align: center;") 35
-                span.value(style="width: 26%; text-align: center;") 40
-
-              .form_container(style="margin-top : 70px;")  
-              form#bmiRecordForm(action="/bmiCalc/bmiRecord" method="post" style="display: inline; align-items: center; margin-right : 10px;")
-                input.btn.btn-primary(type="submit" value="BMI 기록하기" style="width: 45%;" onclick="recordBMI()" id="recordButton")
-              form(action="/exerciseRec" method="get" style="display: inline; align-items: center; margin-left : 10px;")
-                input.btn.btn-dark(type="submit" value="운동 추천받기" style="width: 45%;")
-              
-    else
-      .container(style="margin-top : 80px;")
-      .row.justify-content-center
-        .col-md-6
-          .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;")
-            h2.text-center.mb-4 BMI 측정기
-            form.row.g-3(action="/bmiCalc", method="post")
-              .col-md-12
-                label.form-label 성별
-                .form-check
-                  input.form-check-input(type="radio", name="gender", id="male", value="male")
-                  label.form-check-label(for="male") 남성
-                  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  input.form-check-input(type="radio", name="gender", id="female", value="female")
-                  label.form-check-label(for="female") 여성
-              hr
-              .col-md-12
-                label.form-label(for="age") 나이
-                input.form-control(type="number", name="age", id="age", placeholder="나이를 입력하세요.")
-              br
-              br
-              .col-md-12
-                label.form-label(for="height") 신장
-                input.form-control(type="number", name="height", id="height", placeholder="신장(cm)을 입력하세요." step="0.01")
-              br
-              br
-              .col-md-12
-                label.form-label(for="weight") 몸무게
-                input.form-control(type="number", name="weight", id="weight", placeholder="몸무게(kg)를 입력하세요." step="0.01")
-              br
-              br
-              .col-md-12
-                button.btn.btn-primary.btn-block(type="submit" id="btn" disabled)   측정하기
+    
+    .container(style="margin-top : 80px;")
+    .row.justify-content-center
+      .col-md-6
+        .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;")
+          h2.text-center.mb-4 운동 추천 폼
+          
+          
+          
   footer.container.py-5(style='margin-top : 50px;')
     .row
       .col-12.col-md

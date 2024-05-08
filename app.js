@@ -123,12 +123,6 @@ app.post('/signUp', (req, res) => {
   })
 })
 
-
-// ********************************** 대시보드
-app.get('/dashboard', (req, res) => {
-  res.render('dashboard')
-})
-
 // ********************************** bmi 계산기
 app.get('/bmiCalc', (req, res) => {
   if(req.session.user_id){
@@ -308,5 +302,9 @@ app.get('/community', (req, res) => {
     
 
 app.get('/myPage', (req, res) => {
-  res.render('myPage')
+  if(req.session.user_id){
+    res.render('myPage')
+  } else {
+    res.redirect('/signIn')
+  }
 })

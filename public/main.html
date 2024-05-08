@@ -214,7 +214,7 @@
           <h1 class="display-6 fw-bold gradient" id="quote"></h1>
           <h3 class="fw-normal text-muted mb-3">대시보드에서 나의 운동 일지를 확인하세요!</h3>
           <div class="d-flex gap-3 justify-content-center lead fw-normal">
-            <a class="icon-link" href="/dashboard" style="text-decoration: none;">
+            <a id="toGoMyPage" class="icon-link" href="/myPage" style="text-decoration: none;">
               대시보드 바로가기
               <svg class="bi"><use xlink:href="#chevron-right"/></svg>
             </a>
@@ -319,6 +319,28 @@
       </div>
     </footer>
     <script src="quote.js"></script>
+    <script>
+      const myPageBtn = document.getElementById('toGoMyPage')
+      myPageBtn.addEventListener('click', () => {
+        fetch('/checkLogin')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('서버 응답 오류');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.loggedIn) {
+              document.getElementById("bmiRecordForm").submit();
+            } else {
+              alert('로그인이 필요합니다.');
+            }
+          })
+          .catch(error => {
+            console.error('오류 발생:', error);
+          });
+        })
+    </script>
     
     <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
