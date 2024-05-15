@@ -1,0 +1,134 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title 회원가입
+    // 부트스트랩 CDN 링크 추가
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous")
+    script(src="/docs/5.3/assets/js/color-modes.js")
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="description" content="")
+    meta(name="author" content="Mark Otto, Jacob Thornton, 그리고 Bootstrap 기여자들")
+    meta(name="generator" content="Hugo 0.122.0")
+    title Exercise-Recommender
+    link(rel="canonical" href="https://getbootstrap.kr/docs/5.3/examples/product/")
+    // 부트스트랩 최신 버전 CSS CDN 링크 추가
+    link(href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous")
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3")
+    link(href="/docs/5.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous")
+    // Favicons
+    link(rel="apple-touch-icon" href="/docs/5.3/assets/img/favicons/apple-touch-icon.png" sizes="180x180")
+    link(rel="icon" href="/docs/5.3/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png")
+    link(rel="icon" href="/docs/5.3/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png")
+    link(rel="manifest" href="/docs/5.3/assets/img/favicons/manifest.json")
+    link(rel="mask-icon" href="/docs/5.3/assets/img/favicons/safari-pinned-tab.svg" color="#712cf9")
+    link(rel="icon" href="/docs/5.3/assets/img/favicons/favicon.ico")
+    meta(name="theme-color" content="#712cf9")
+    style.
+      /* 본문 영역 스타일 */
+      .form-container {
+          margin-top: 50px;
+          margin-bottom : 50px;
+      }
+  body
+    nav.navbar.navbar-expand-md.bg-dark.sticky-top.border-bottom(data-bs-theme="dark")
+      .container
+        a.navbar-brand.d-md-none(href="/")
+          svg.bi(width="24" height="24")
+            use(xlink:href="#aperture")
+          | E-Recommender
+        button.navbar-toggler(type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas" aria-label="Toggle navigation")
+          span.navbar-toggler-icon
+        .offcanvas.offcanvas-end(tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel")
+          .offcanvas-header
+            h5.offcanvas-title#offcanvasLabel E-Recommender
+            button.btn-close(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
+          .offcanvas-body
+            ul.navbar-nav.flex-grow-1.justify-content-between
+              li.nav-item
+                a.nav-link(href="/signIn") 로그인 하러가기
+
+    // 본문 영역
+    .container
+      .row.justify-content-center.form-container
+        .col-md-6
+          h2.text-center.mb-4 회원가입
+          form(action="/signUp" method="post")
+            .form-group
+              label(for="name") 이름
+              input.form-control(type="text" id="name" name="user_name" placeholder="이름을 입력하세요." value= inform.name)
+            .form-group
+              label(for="email") 이메일
+              input.form-control(type="email" id="email" name="user_email" placeholder="이메일을 입력하세요." value= inform.email)
+            .form-group
+              label(for="id") 아이디
+              input.form-control.is-invalid(type="text" id="validationServer03" aria-describedby="validationServer03Feedback" required)
+              div#validationServer03Feedback.invalid-feedback
+                | 다른 아이디를 입력하세요.
+            .form-group
+              label(for="password") 비밀번호
+              input.form-control(type="password" id="password" name="user_password" placeholder="비밀번호를 입력하세요." value= inform.password)
+            .form-group
+              label(for="confirmPassword") 비밀번호 확인
+              input.form-control(type="password" id="confirmPassword" placeholder="비밀번호를 다시 입력하세요." value= inform.password)
+            br
+            button.btn.btn-primary.btn-block(type="submit" id="submit_button" disabled) 가입하기
+
+    script.
+      // 비밀번호 확인
+      var password = document.getElementById("password");
+      var confirmPassword = document.getElementById("confirmPassword");
+
+      function validatePassword() {
+        if (password.value != confirmPassword.value) {
+          confirmPassword.setCustomValidity("비밀번호가 일치하지 않습니다.");
+        } else {
+          confirmPassword.setCustomValidity('');
+        }
+      }
+
+      password.onchange = validatePassword;
+      confirmPassword.onkeyup = validatePassword;
+
+    script.
+      function submitOn() {
+        const name = document.getElementById("name")
+        const email = document.getElementById("email")
+        const id = document.getElementById("id")
+        const pw = document.getElementById("password")
+        const cpw = document.getElementById("confirmPassword")
+        const btn = document.getElementById("submit_button")
+
+        function checkInput() {
+          if (id.value.trim() !== "" &&  name.value.trim() !== "" && email.value.trim() !== "" && cpw.value.trim() !== "" && pw.value.trim() !== "" && cpw.value === pw.value) {
+            btn.disabled = false;
+          } else {
+            btn.disabled = true;
+          }
+        } 
+        id.addEventListener("input", checkInput);
+        pw.addEventListener("input", checkInput);
+        name.addEventListener("input", checkInput);
+        cpw.addEventListener("input", checkInput);
+        email.addEventListener("input", checkInput);
+      }
+
+      document.addEventListener("DOMContentLoaded", function() {
+        submitOn();
+      });
+
+    script. 
+      if("#{alertMessage}") {
+        alert("#{alertMessage}")
+      }
+
+    // 부트스트랩 자바스크립트 CDN 추가
+    script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
+    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+    script(src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous")

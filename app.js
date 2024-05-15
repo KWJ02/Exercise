@@ -42,7 +42,7 @@ app.listen(3000, (err) => {
 })
 
 app.get('/test', (req, res) => {
-  res.sendFile(__dirname + '/public/test.html')
+  res.render('signUp')
 })
 app.get('/test1', (req, res) => {
   res.sendFile(__dirname + '/public/test1.html')
@@ -112,14 +112,29 @@ app.post('/signUp', (req, res) => {
   let password = req.body.user_password
   let email = req.body.user_email
   let name = req.body.user_name
+  let alertMessage = ''
 
-  let sql = 'INSERT INTO users (user_id, user_pw, email, name) VALUES (?,?,?,?)'
-  conn.query(sql,[id,password,email,name],(err, result) => {
+  let sql = 'SELECT user_id, name FROM users WHERE user_id=? AND name=?'
+  conn.query(sql,[id, name],(err, result) => {
     if(err){
       console.log(err)
       res.status(500).send('Interner Server Error')
+    } 
+
+    if(result.length == 0){
+      let sql = 'INSERT INTO users (user_id, user_pw, email, name) VALUES (?,?,?,?)'
+      conn.query(sql, [id, password, email, name], (err, result) => {
+        if(err){
+          console.log(err)
+          res.status(500).send('Interner Server Error')
+        } else {
+          alertMessage = "회원가입이 완료되었습니다."
+          res.render('signIn', {alertMessage : alertMessage})
+        }
+      })
     } else {
-      res.redirect('/signIn')
+      alertMessage = "이미 존재하는 아이디입니다."
+      res.render('signUp', {alertMessage : alertMessage, inform : {id, password, email, name}})
     }
   })
 })
