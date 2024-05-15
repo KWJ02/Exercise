@@ -89,50 +89,50 @@ html(lang="en")
     .container(style="margin-top: 50px;")
       .row.justify-content-center
         .col-md-8.text-center
-          .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white;")
-            h2.text-center.mb-4 항목을 선택하세요.
-            p(style="text-align : left;") 장소를 선택하세요.
-            hr
-            .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
-              input(type='radio', class='btn-check', name='options-position', id='home', autocomplete='off')
-              label(for='home', class='btn btn-outline-primary' style="margin-right : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 집
+          form(action="/exerciseRec" method="post" style="display: inline; align-items: center; margin-right : 10px;")
+            .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white; height : 100vh")
+              h2.text-center.mb-4 항목을 선택하세요.
+              p(style="text-align : left;") 장소를 선택하세요.
+              hr
+              .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
+                input(type='radio', class='btn-check', name='options-position', id='home', value='home', autocomplete='off')
+                label(for='home', class='btn btn-outline-primary' style="margin-right : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 집
 
-              input(type='radio', class='btn-check', name='options-position', id='gym', autocomplete='off')
-              label(for='gym', class='btn btn-outline-primary' style="margin-left : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 헬스장
-              
-            p(style="text-align : left;") 부위를 선택하세요 
-            hr
-            .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
-              input(type='radio', class='btn-check', name='options-parts', id='shoulder', autocomplete='off' disabled)
-              label(for='shoulder', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 어깨
+                input(type='radio', class='btn-check', name='options-position', id='gym', value='gym', autocomplete='off')
+                label(for='gym', class='btn btn-outline-primary' style="margin-left : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 헬스장
+                
+              p(style="text-align : left;") 부위를 선택하세요 
+              hr
+              .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
+                input(type='radio', class='btn-check', name='options-parts', id='shoulder', value='shoulder', autocomplete='off' disabled)
+                label(for='shoulder', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 어깨
 
-              input(type='radio', class='btn-check', name='options-parts', id='chest', autocomplete='off' disabled)
-              label(for='chest', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 가슴
+                input(type='radio', class='btn-check', name='options-parts', id='chest', value='chest', autocomplete='off' disabled)
+                label(for='chest', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 가슴
 
-              input(type='radio', class='btn-check', name='options-parts', id='back', autocomplete='off' disabled)
-              label(for='back', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 등
+                input(type='radio', class='btn-check', name='options-parts', id='back', value='back', autocomplete='off' disabled)
+                label(for='back', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 등
 
-              input(type='radio', class='btn-check', name='options-parts', id='core', autocomplete='off' disabled)
-              label(for='core', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 코어
+                input(type='radio', class='btn-check', name='options-parts', id='core', value='core', autocomplete='off' disabled)
+                label(for='core', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 코어
 
-              input(type='radio', class='btn-check', name='options-parts', id='lowerBody', autocomplete='off' disabled)
-              label(for='lowerBody', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하체
+                input(type='radio', class='btn-check', name='options-parts', id='lowerBody', value='lowerBody', autocomplete='off' disabled)
+                label(for='lowerBody', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하체
 
-            p(style="text-align : left;") 난이도를 선택하세요.
-            hr
-            .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
-              input(type='radio', class='btn-check', name='options-difficulty', id='hard', autocomplete='off' disabled)
-              label(for='hard', class='btn btn-outline-danger' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 상
+              p(style="text-align : left;") 난이도를 선택하세요.
+              hr
+              .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
+                input(type='radio', class='btn-check', name='options-difficulty', id='hard', value='hard', autocomplete='off' disabled)
+                label(for='hard', class='btn btn-outline-danger' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 상
 
-              input(type='radio', class='btn-check', name='options-difficulty', id='middle', autocomplete='off' disabled)
-              label(for='middle', class='btn btn-outline-info' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 중
-              
-              input(type='radio', class='btn-check', name='options-difficulty', id='low', autocomplete='off' disabled)
-              label(for='low', class='btn btn-outline-success' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하
+                input(type='radio', class='btn-check', name='options-difficulty', id='middle', value='middle', autocomplete='off' disabled)
+                label(for='middle', class='btn btn-outline-info' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 중
+                
+                input(type='radio', class='btn-check', name='options-difficulty', id='low', value='low', autocomplete='off' disabled)
+                label(for='low', class='btn btn-outline-success' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하
 
-            .form_container(style="margin-top : 50px;")
-            form(action="/exerciseRec" method="post" style="display: inline; align-items: center; margin-right : 10px;")
-              input.btn.btn-primary(type="submit" value="제출" style="width: 100%; color : #fff" id="submit_button" disabled)
+              .form_container
+                input.btn.btn-primary(type="submit" value="제출" style="width: 100%; color : #fff; margin-top : 50px" id="submit_button" disabled)
 
 
           

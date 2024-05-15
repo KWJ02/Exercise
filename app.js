@@ -181,21 +181,13 @@ app.post('/bmiCalc', (req, res) => {
   let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
   let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1)
 
-  const genderToken = jwt.sign({ gender }, '1asdf23');
-  const ageToken = jwt.sign({ age }, '3df21');
-  const heightToken = jwt.sign({ height }, '246df234');
-  const weightToken = jwt.sign({ weight }, '12adsf4563');
-  const bmiToken = jwt.sign({ bmi }, '3s45634ds56');
-  const normalMinimumWeightToken = jwt.sign({ normalMinimumWeight }, '56ad8');
-  const normalMaximumWeightToken = jwt.sign({ normalMaximumWeight }, '12adszg3');
-
-  res.cookie('gender', genderToken, { httpOnly: true, secure: true })
-  res.cookie('age', ageToken, { httpOnly: true, secure: true })
-  res.cookie('height', heightToken, { httpOnly: true, secure: true })
-  res.cookie('weight', weightToken, { httpOnly: true, secure: true })
-  res.cookie('bmi', bmiToken, { httpOnly: true, secure: true })
-  res.cookie('normalMinimumWeight', normalMinimumWeightToken, { httpOnly: true, secure: true })
-  res.cookie('normalMaximumWeight', normalMaximumWeightToken, { httpOnly: true, secure: true })
+  res.cookie('gender', gender)
+  res.cookie('age', age)
+  res.cookie('height', height)
+  res.cookie('weight', weight)
+  res.cookie('bmi', bmi)
+  res.cookie('normalMinimumWeight', normalMinimumWeight)
+  res.cookie('normalMaximumWeight', normalMaximumWeight)
   
 
   if(req.session.user_id){
@@ -218,19 +210,21 @@ app.post('/bmiCalc/bmiRecord', (req, res) => {
   const userInput = req.cookies
 
   if(req.session.user_id){
+    let id = req.session.user_id
     let sql = 'SELECT name from users WHERE user_id = ?'
-    conn.query(sql, req.session.user_id, (err, result) => {
+    conn.query(sql, id, (err, result) => {
       if(err){
         console.log(err)
         res.status(500).send('Internal Server Error')
-      } else {
+      }
+
+      if(result.length > 0) {
         let sql2 = 'INSERT INTO userinput (age, height, weight, bmi) VALUES (?,?,?,?)'
         conn.query(sql2, [userInput.age, userInput.height, userInput.weight, userInput.bmi], (err, rows) => {
           if(err){
             console.log(err)
             res.status(500).send('Internal Server Error')
           } else {
-            console.log(rows[0])
             res.render('bmiCalc', {alertMessage : '대시보드에 저장되었습니다!'})
           }
         })
@@ -268,7 +262,11 @@ app.get('/exerciseRec', (req, res) => {
 })
 
 app.post('/exerciseRec', (req, res) => {
+  let pos = req.body['options-position']
+  let part = req.body['options-parts']
+  let diff = req.body['options-difficulty']
   let sql = 'SELECT name FROM exercises WHERE pos = ? AND part = ?'
+
 
 })
 
