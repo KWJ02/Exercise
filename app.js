@@ -205,10 +205,9 @@ app.post('/bmiCalc', (req, res) => {
   }
 })
 
-// ********************************** bmi기록
-app.post('/bmiCalc/bmiRecord', (req, res) => {
+// ********************************** bmi기록 / insert문 중복 수행 오류
+app.post('/bmiRecord', (req, res) => {
   const userInput = req.cookies
-
   if(req.session.user_id){
     let id = req.session.user_id
     let sql = 'SELECT name from users WHERE user_id = ?'
@@ -217,7 +216,6 @@ app.post('/bmiCalc/bmiRecord', (req, res) => {
         console.log(err)
         res.status(500).send('Internal Server Error')
       }
-
       if(result.length > 0) {
         let sql2 = 'INSERT INTO userinput (age, height, weight, bmi) VALUES (?,?,?,?)'
         conn.query(sql2, [userInput.age, userInput.height, userInput.weight, userInput.bmi], (err, rows) => {
@@ -225,12 +223,13 @@ app.post('/bmiCalc/bmiRecord', (req, res) => {
             console.log(err)
             res.status(500).send('Internal Server Error')
           } else {
-            res.render('bmiCalc', {alertMessage : '대시보드에 저장되었습니다!'})
+            res.render('bmiRecord', {alertMessage : '대시보드에 저장되었습니다.'})
           }
         })
       }
     })
   } else {
+    console.log('10')
     res.redirect('../signIn')
   }
 });

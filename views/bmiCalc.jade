@@ -215,7 +215,7 @@ html(lang="en")
                 span.value(style="width: 26%; text-align: center;") 40
 
               .form_container(style="margin-top : 100px;")  
-              form#bmiRecordForm(action="/bmiCalc/bmiRecord" method="post" style="display: inline; align-items: center; margin-right : 10px;")
+              form#bmiRecordForm(action="/bmiRecord" method="post" style="display: inline; align-items: center; margin-right : 10px;")
                 input.btn.btn-dark(type="submit" value="BMI 기록하고 운동 추천받기" style="width: 100%;" onclick="recordBMI()" id="recordButton")
               
     else
@@ -354,11 +354,6 @@ html(lang="en")
         .catch(error => {
           console.error('오류 발생:', error);
         });
-    }
-  script. 
-    if("#{alertMessage}") {
-      alert("#{alertMessage}")
-      window.location.href = '/exerciseRec'
     }
   script.
       document.getElementById("logoutButton").addEventListener("click", function(event) {
