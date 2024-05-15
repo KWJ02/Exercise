@@ -75,24 +75,40 @@ app.get('/signIn', (req, res) => {
 app.post('/signIn', (req, res) => {
   let id = req.body.id
   let password = req.body.password
+  let alertMessage = ''
 
   // 사용자 인증 과정
-  sql = 'SELECT * FROM users WHERE user_id=? AND user_pw=?'
-  conn.query(sql, [id, password], (err, result) => {
+  let sql = 'SELECT * FROM users WHERE user_id=?'
+  conn.query(sql, id, (err, result) => {
     if(err){
       console.log(err)
       res.status(500).send('Internal Server Error')
+    }
+
+    if (result.length > 0) {
+      // 로그인 성공 시 세션 설정, 사용자의 아이디만 세션에 저장
+      let sql = 'SELECT * FROM users WHERE user_pw=?'
+      conn.query(sql, password, (err, result) => {
+        if(err){
+          console.log(err)
+          res.status(500).send('Internal Server Error')
+        }
+        
+        if(result.length > 0){
+          req.session.user_id = result[0].user_id
+          req.session.save(() =>{
+            res.redirect('/main')
+          })
+        } else {
+          alertMessage = "암호가 틀렸습니다."
+          res.render('signIn', {alertMessage : alertMessage})
+        }
+        
+      })
     } else {
-      if (result.length > 0) {
-        // 로그인 성공 시 세션 설정, 사용자의 아이디만 세션에 저장
-        req.session.user_id = result[0].user_id
-        req.session.save(() =>{
-          res.redirect('/main')
-        })
-      } else {
-        // 로그인 실패 시 메시지 출력 또는 리다이렉션
-        res.send('아이디 또는 비밀번호가 일치하지 않습니다.');
-      }
+      // 로그인 실패 시 메시지 출력 또는 리다이렉션
+      alertMessage = '존재하지 않는 계정입니다.'
+      res.render('signIn', {alertMessage : alertMessage});
     }
   })
 })
