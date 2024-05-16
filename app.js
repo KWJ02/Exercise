@@ -3,12 +3,14 @@ const cookieParser = require('cookie-parser')
 const mysql = require('mysql')
 const session = require('express-session')
 const jwt = require('jsonwebtoken')
+const router = express.Router();
+const moment = require('moment');
 const MySQLStore = require('express-mysql-session')(session)
 const conn = mysql.createConnection({
   host : 'localhost',
-  user : 'root',
-  password : '',
-  database : 'ER' // 데이터베이스 이름 유의
+  user : 'db',
+  password : 'a123456&',
+  database : 'db' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -20,9 +22,9 @@ app.use(session({
   store: new MySQLStore({
     host : 'localhost',
     port : 3306,
-    user : 'root',
-    password : '',
-    database : 'ER'
+    user : 'db',
+    password : 'a123456&',
+    database : 'db'
   })
 }))
 
@@ -274,75 +276,235 @@ app.get('/exerciseLib', (req, res) => {
   res.send('운동 라이브러리 개설 예정')
 })
 
-
-// ********************************** 커뮤니티
 app.get('/community', (req, res) => {
-    if(req.session.user_id){
-      let sql = 'SELECT name, user_id from users WHERE user_id = ?'
-      conn.query(sql, req.session.user_id, (err, result) => {
-        if(err){
-          console.log(err)
-          res.status(500).send('Internal Server Error')
-        } else {
-          res.render('community', {name : result[0].name, id : result[0].user_id})
+  if(req.session.user_id) {
+    let sql = 'SELECT name, user_id from users WHERE user_id = ?';
+    conn.query(sql, req.session.user_id, (err, result) => {
+      if(err) {
+        console.log(err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        const userName = result[0].name;
+        const query = req.query.query; // 검색어 가져오기
+        const perPage = 6; // 한 페이지에 표시할 게시글 수
+        const page = req.query.page || 1; // 페이지 매개변수 가져오기, 기본값은 1
+
+        // 게시물 쿼리를 페이지에 따라 가져오기
+        let sqlPosts = `SELECT post_id, title, content, name, nameInput, created_at, view_count 
+                        FROM posts`;
+
+        if (query) {
+          // 검색어가 있는 경우 WHERE 절을 추가하여 검색을 수행합니다.
+          sqlPosts += ` WHERE title LIKE '%${query}%' OR content LIKE '%${query}%'`;
         }
-      })
-    } else {
-      res.render('community')
+
+        sqlPosts += ` ORDER BY created_at DESC 
+                      LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+
+        conn.query(sqlPosts, (err, postsResult) => {
+          if (err) {
+            console.error(err);
+            res.status(500).send('Error fetching posts');
+          } else {
+            // Moment.js를 사용하여 created_at 값을 원하는 형식으로 변환
+            postsResult.forEach(post => {
+              post.created_at = moment(post.created_at).format('YYYY-MM-DD HH:mm:ss');
+            });
+
+            // 다음 페이지가 있는지 확인
+            const hasNextPage = postsResult.length === perPage;
+
+            res.render('community', { name: userName, id: result[0].user_id, posts: postsResult, page, hasNextPage });
+          }
+        });
+      }
+    });
+  } else {
+    // 세션이 없는 경우
+    const query = req.query.query; // 검색어 가져오기
+    const perPage = 6; // 한 페이지에 표시할 게시글 수
+    const page = req.query.page || 1; // 페이지 매개변수 가져오기, 기본값은 1
+
+    // 게시물 쿼리를 페이지에 따라 가져오기
+    let sqlPosts = `SELECT post_id, title, content, name, nameInput, created_at, view_count 
+                    FROM posts`;
+
+    if (query) {
+      // 검색어가 있는 경우 WHERE 절을 추가하여 검색을 수행합니다.
+      sqlPosts += ` WHERE title LIKE '%${query}%' OR content LIKE '%${query}%'`;
     }
-  })
-  
-  // 커뮤니티 페이지에서 게시물 조회
-  app.get('/community', (req, res) => {
-    const sql = 'SELECT * FROM posts';
-    conn.query(sql, (err, result) => {
+
+    sqlPosts += ` ORDER BY created_at DESC 
+                  LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+
+    conn.query(sqlPosts, (err, postsResult) => {
       if (err) {
         console.error(err);
         res.status(500).send('Error fetching posts');
       } else {
-        console.log('Posts fetched successfully');
-        res.render('community', { posts: result }); // 커뮤니티 페이지에 게시물 데이터를 전달하여 렌더링
+        // Moment.js를 사용하여 created_at 값을 원하는 형식으로 변환
+        postsResult.forEach(post => {
+          post.created_at = moment(post.created_at).format('YYYY-MM-DD HH:mm:ss');
+        });
+
+        // 다음 페이지가 있는지 확인
+        const hasNextPage = postsResult.length === perPage;
+
+        res.render('community', { posts: postsResult, page, hasNextPage });
       }
     });
-  });
+  }
+});
+
+// 커뮤니티 페이지에 새 게시물 추가하기
+app.post('/community', (req, res) => {
+  const { post_id, title, content, name, nameInput, created_at, view_count } = req.body;
   
-  
-  // 글쓰기 페이지 렌더링
-  app.get('/write', (req, res) => {
-    // 세션에서 사용자 정보 가져오기
-    const userId = req.session.user_id;
-    if(userId){
-      let sql = 'SELECT name from users WHERE user_id = ?'
-      conn.query(sql, userId, (err, result) => {
-        if(err){
-          console.log(err)
-          res.status(500).send('Internal Server Error')
-        } else {
-          res.render('write', { name: result[0].name }) // write 파일을 렌더링하며 사용자 이름 전달
-        }
-      })
+  // 게시물 추가를 위한 SQL 쿼리
+  const sql = 'INSERT INTO posts (post_id, title, content, name, nameInput, created_at, view_count) VALUES (?, ?, ?, ?, ?, ?, 0)';
+  conn.query(sql, [post_id, title, content, name, nameInput, created_at, view_count], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error creating post');
     } else {
-      res.redirect('/signIn'); // 로그인 페이지로 리다이렉트
+      res.redirect('/community'); // 새 게시물이 추가되면 커뮤니티 페이지로 리다이렉트
     }
-  })
-  
-  // 게시물 작성 페이지에서 게시물을 DB에 저장하는 엔드포인트
-  app.post('/write', (req, res) => {
-    const { title, content, name } = req.body;
-    const post = { title, content, name };
-  
-    const sql = 'INSERT INTO posts (title, content, name) VALUES (?, ?, ?)';
-    conn.query(sql, [title, content, name], (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Error creating post');
-      } else {
-        console.log('Post created successfully');
-        res.redirect('/community'); // 작성이 완료되면 커뮤니티 페이지로 리다이렉트
-      }
-    });
   });
-    
+});
+
+
+ // 글쓰기 페이지 렌더링
+ app.get('/write', (req, res) => {
+  // 세션에서 사용자 정보 가져오기
+  const userId = req.session.user_id;
+  if(userId){
+    let sql = 'SELECT name from users WHERE user_id = ?'
+    conn.query(sql, userId, (err, result) => {
+      if(err){
+        console.log(err)
+        res.status(500).send('Internal Server Error')
+      } else {
+        res.render('write', { name: result[0].name }) // write 파일을 렌더링하며 사용자 이름 전달
+      }
+    })
+  } else {
+    res.redirect('/signIn'); // 로그인 페이지로 리다이렉트
+  }
+})
+
+// 게시물 작성 페이지에서 게시물을 DB에 저장하는 엔드포인트
+app.post('/write', (req, res) => {
+  const { post_id, title, content, name, nameInput, created_at, view_count } = req.body;
+  const userId = req.session.user_id;
+
+  // 사용자의 이름을 가져오기 위한 쿼리
+  const sqlGetUserName = 'SELECT name FROM users WHERE user_id = ?';
+  conn.query(sqlGetUserName, userId, (err, userResult) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error fetching user data');
+    } else {
+      if (userResult.length > 0) { // 사용자 정보가 존재하는 경우
+        const name = userResult[0].name; // 사용자 이름
+        // 게시물 추가를 위한 SQL 쿼리
+        const sql = 'INSERT INTO posts (post_id, title, content, name, nameInput, created_at, view_count) VALUES (?, ?, ?, ?, ?, ?, 0)';
+        conn.query(sql, [post_id, title, content, name, nameInput, created_at, view_count], (err, result) => {
+          if (err) {
+            console.error(err);
+            res.status(500).send('Error creating post');
+          } else {
+            res.redirect('/community'); // 작성이 완료되면 커뮤니티 페이지로 리다이렉트
+          }
+        });
+      } else { // 사용자 정보가 없는 경우
+        res.status(404).send('User not found');
+      }
+    }
+  });
+});
+
+// 특정 게시글의 내용을 가져오는 엔드포인트
+app.get('/board/:postId', (req, res) => {
+  const postId = req.params.postId;
+  const sql = 'SELECT * FROM posts WHERE post_id = ?';
+  conn.query(sql, postId, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error fetching post content');
+    } else {
+      if (result.length > 0) {
+        res.send(result[0]); // 게시글 내용을 JSON 형식으로 응답
+      } else {
+        res.status(404).send('Post not found');
+      }
+    }
+  });
+});
+
+// viewPost 페이지 렌더링
+app.get('/viewPost', (req, res) => {
+  const postId = req.query.postId;
+  console.log(postId)
+
+  // postId를 이용하여 해당 게시글의 내용을 DB에서 조회
+  const sqlGetPostContent = 'SELECT * FROM posts WHERE post_id = ?';
+  conn.query(sqlGetPostContent, postId, (err, result) => {
+      if (err) {
+          console.error(err);
+          res.status(500).send('Error fetching post content');
+      } else {
+          const post = result[0];
+          if (!post) {
+              res.status(404).send('Post not found');
+              return;
+          }
+          
+          if (req.session.user_id) {
+              // 사용자 인증이 되어 있으면 사용자 정보를 가져와서 함께 전달
+              const sqlGetUserName = 'SELECT name FROM users WHERE user_id = ?';
+              conn.query(sqlGetUserName, req.session.user_id, (err, userResult) => {
+                  if (err) {
+                      console.error(err);
+                      res.status(500).send('Error fetching user data');
+                  } else {
+                      const userName = userResult[0].name;
+                      res.render('viewPost', { post, name: userName });
+                  }
+              });
+          } else {
+              // 사용자 인증이 안 되어 있으면 게시글만 전달
+              res.render('viewPost', { post });
+          }
+      }
+  });
+});
+
+
+// POST /comments - 새로운 댓글 생성
+router.post('/comments', (req, res) => {
+  const { content } = req.body;
+  const authorId = req.session.user_id || null; // 사용자가 인증되어 있지 않으면 null
+
+  if (!content) {
+    res.status(400).send('댓글 내용이 전달되지 않았습니다.');
+    return;
+  }
+
+  const sql = 'INSERT INTO comments (content, author_id) VALUES (?, ?)';
+  const values = [content, authorId];
+
+  // 쿼리 실행
+  conn.query(sql, values, (err, result) => {
+      if (err) {
+          console.error('댓글 생성 오류:', err);
+          res.status(500).send('댓글 생성 실패');
+          return;
+      }
+      console.log('댓글이 성공적으로 생성되었습니다.');
+      res.status(201).send('댓글이 성공적으로 생성되었습니다.');
+  });
+});
+
 
 app.get('/myPage', (req, res) => {
   if(req.session.user_id){

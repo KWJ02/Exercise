@@ -179,23 +179,6 @@
     <link href="product.css" rel="stylesheet">
 </head>
 <body>
-  <script>
-    fetch('lib.php')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('includedContent').innerHTML = data;
-        })
-        .catch(error => console.error('파일을 불러오는 중 오류 발생:', error));
-  </script>
-
-<script>
-  fetch('community.php')
-      .then(response => response.text())
-      .then(data => {
-          document.getElementById('includedContent').innerHTML = data;
-      })
-      .catch(error => console.error('파일을 불러오는 중 오류 발생:', error));
-</script>
 
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
   <symbol id="check2" viewBox="0 0 16 16">

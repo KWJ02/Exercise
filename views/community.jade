@@ -76,38 +76,65 @@ html(lang="en")
                 li.nav-item
                   a.nav-link(href="/signIn") 로그인
               
-  main.container.mt-5
-    h1.mb-3 게시판
-    form.form-inline.d-flex.justify-content-end(method="GET", action="/board/boardList")
-      // 검색 폼
-      .form-group.mx-sm-3.mb-2
-        input#searchText.form-control(type="search", placeholder="Search...", aria-label="Search")
-      button.btn.btn-primary.mb-2(type="submit") 검색 
-    hr.mt-4.mb-4
-    // 게시판 테이블
-    table.table.table-hover
-      thead
-        tr
-          th 번호
-          th 제목
-          th 작성자
-          th 작성일
-          th 조회수
-      tbody
-        if boards && boards.length > 0
-          each board in boards
-            tr
-              td= board.post_id
-              td= board.title
-              td= board.name
-              td= board.created_at
-              td= board.view_count
-        else
+ main.container.mt-5
+  h1.mb-3 게시판
+  form.form-inline.d-flex.justify-content-end(method="GET", action="/board/boardList")
+    // 검색 폼
+    form.form-inline.mb-2(method="GET", action="/community")
+      .form-group.row.align-items-center 
+        label.col-sm-2(for='searchText') 
+        .col-sm-8.d-flex 
+          input#searchText.form-control(type="search", placeholder="Search...", aria-label="Search")
+          button.btn.btn-primary.ml-2(type="submit") click
+  hr.mt-4.mb-4
+
+
+
+  // 게시판 테이블
+  table.table.table-hover
+    thead
+      tr
+        th.border 번호
+        th.border 제목
+        th.border 작성자
+        th.border 작성일
+        th.border 조회수
+        th.border 게시글 내용
+    tbody
+      if posts && posts.length > 0
+        each post in posts
           tr
-            td(colspan="5") No data available
-    hr
+            td.border= post.post_id
+            td.border= post.title
+            td.border= post.nameInput
+            td.border= post.created_at
+            td.border= post.view_count
+            td.border
+              a(href="/viewPost?postId=" + post.post_id) 내용 확인하기
+
+      else
+        tr
+          td(colspan="6") No data available
+
+  hr
+  
+  // 이전 및 다음 페이지 버튼
+  .row
+    .col-6.text-left
+      // 이전 페이지로 가는 버튼
+      if page > 1
+        button.btn.btn-primary.mb-2.pull-left(onclick="location.href='/community?page=" + (page - 1) + "'") 이전
+    .col-6.text-right
+      // 다음 페이지로 가는 버튼
+      if hasNextPage
+        button.btn.btn-primary.mb-2.pull-right(onclick="location.href='/community?page=" + (page + 1) + "'") 다음
+
+  .row
+  .col-12.text-center
     // 글쓰기 버튼
-    button.btn.btn-default.pull-right(onclick="location.href='/write'") 글쓰기
+    button.btn.btn-default.mb-2(onclick="location.href='/write'") 글쓰기
+
+
 
   footer.container.py-5(style='margin-top : 50px;')
     .row
