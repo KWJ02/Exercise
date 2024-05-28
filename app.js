@@ -11,7 +11,7 @@ const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
   password : '',
-  database : 'inf' // 데이터베이스 이름 유의
+  database : 'ER' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -25,7 +25,7 @@ app.use(session({
     port : 3306,
     user : 'root',
     password : '',
-    database : 'inf'
+    database : 'ER'
   })
 }))
 
@@ -45,10 +45,10 @@ app.listen(3000, (err) => {
 })
 
 app.get('/test', (req, res) => {
-  res.render('signUp')
+  res.render('recommend')
 })
 app.get('/test1', (req, res) => {
-  res.sendFile(__dirname + '/public/test1.html')
+  res.sendFile(__dirname + '/public/index.html')
 })
 app.get('/test2', (req, res) => {
   res.sendFile(__dirname + '/public/test2.html')
@@ -263,10 +263,13 @@ app.get('/exerciseRec', (req, res) => {
   }
 })
 
-app.post('/exerciseRec', (req, res) => {
+app.post('/recommend', (req, res) => {
   let pos = req.body['options-position']
   let part = req.body['options-parts']
   let diff = req.body['options-difficulty']
+  console.log(pos)
+  console.log(part)
+  console.log(diff)
   let sql = 'SELECT name FROM exercises WHERE pos = ? AND part = ?'
 
 

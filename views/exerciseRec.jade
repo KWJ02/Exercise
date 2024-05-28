@@ -89,17 +89,17 @@ html(lang="en")
     .container(style="margin-top: 50px;")
       .row.justify-content-center
         .col-md-8.text-center
-          form(action="/exerciseRec" method="post" style="display: inline; align-items: center; margin-right : 10px;")
+          form(action="/recommend" method="post" style="display: inline; align-items: center; margin-right : 10px;")
             .form-container(style="box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 20px; background-color: white; height : 100vh")
               h2.text-center.mb-4 항목을 선택하세요.
               p(style="text-align : left;") 장소를 선택하세요.
               hr
               .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
-                input(type='radio', class='btn-check', name='options-position', id='home', value='home', autocomplete='off')
-                label(for='home', class='btn btn-outline-primary' style="margin-right : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 집
+                input(type='radio', class='btn-check', name='options-position', id='inside', value='inside', autocomplete='off')
+                label(for='inside', class='btn btn-outline-primary' style="margin-right : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 실내
 
-                input(type='radio', class='btn-check', name='options-position', id='gym', value='gym', autocomplete='off')
-                label(for='gym', class='btn btn-outline-primary' style="margin-left : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 헬스장
+                input(type='radio', class='btn-check', name='options-position', id='outside', value='outside', autocomplete='off')
+                label(for='outside', class='btn btn-outline-primary' style="margin-left : 20px; width : 40%; height : 8vh; display: flex; align-items: center; justify-content: center;") 야외
                 
               p(style="text-align : left;") 부위를 선택하세요 
               hr
@@ -217,8 +217,8 @@ html(lang="en")
 
   script.
     document.addEventListener('DOMContentLoaded', () => {
-      const posBtn1 = document.getElementById('home')
-      const posBtn2 = document.getElementById('gym')
+      const posBtn1 = document.getElementById('inside')
+      const posBtn2 = document.getElementById('outside')
       const partBtn1 = document.getElementById('shoulder')
       const partBtn2 = document.getElementById('chest')
       const partBtn3 = document.getElementById('back')
