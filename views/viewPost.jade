@@ -139,6 +139,66 @@ html(lang='en', data-bs-theme='auto')
       .d-md-flex {
         justify-content: center;
       }
+
+      
+              /* 스타일 추가 */
+        .comment-card {
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 15px;
+          margin-bottom: 15px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          background-color: #f9f9f9;
+        }
+
+        .comment-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+
+        .comment-author-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          margin-right: 10px;
+        }
+
+        .comment-author-info {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .comment-author {
+          font-weight: bold;
+          margin-bottom: 2px;
+        }
+
+        .comment-date {
+          font-size: 0.9em;
+          color: #888;
+        }
+
+        .comment-content {
+          white-space: pre-line;
+          margin-bottom: 10px;
+        }
+
+        .comment-actions {
+          display: flex;
+          gap: 10px;
+        }
+
+        .comment-actions .btn {
+          font-size: 0.85em;
+          padding: 5px 10px;
+        }
+
+       .hidden {
+         display: none;
+       }
+
+
   body
     svg.d-none(xmlns="http://www.w3.org/2000/svg")
       symbol(id="check2", viewBox="0 0 16 16")
@@ -184,77 +244,254 @@ html(lang='en', data-bs-theme='auto')
                   - else
                     a.dropdown-item(href="/myPage") 마이페이지
                     a#logoutButton.dropdown-item(href="/main") 로그아웃
-                  
+ .container
+  hr
+  h2 게시글 내용
+  .post-details
+    table.post-details.table.table-striped
+      hr
+      tr
+        th 작성자
+        td #{post.name}
+      tr
+        th 작성일
+        td #{post.created_at}
+      tr
+        th 조회수
+        td #{post.view_count}
 
-     main
-      .container
-        hr
-        h2 게시글 내용
-        .post-details
-          table.post-details.table.table-striped
-            hr
-            tr
-              th 작성자
-              td #{post.nameInput}
-            tr
-              th 작성일
-              td #{post.created_at}
-            tr
-              th 조회수
-              td #{post.view_count}
-        table#postContent.table.table-striped
-            tr
-              th(style="text-align: center;") 게시글 내용
-            tr
-                   td(style="white-space: pre-line;") #{post.content}
-                   
-        form#commentForm.form-group.row
-            .col-sm-12
-                label(for='commentInput') 댓글 작성:
-                input.form-control(type='text', id='commentInput', placeholder='댓글을 입력해주세요...')
-            .col-sm-12
-                button.btn.btn-primary(type='submit') 댓글 작성
+  table#postContent.table.table-striped
+    tr
+      th(style="text-align: center;") 게시글 제목
+    tr
+      td(style="white-space: pre-line;") #{post.title}
+      hr
+    tr
+      th(style="text-align: center;") 게시글 내용
+    tr
+      td(style="white-space: pre-line;") #{post.content}
 
-    
-    footer.container.py-5
-      .row
-        .col-12.col-md
-          svg(xmlns="http://www.w3.org/2000/svg", width="24", height="24", fill="none", stroke="currentColor", stroke-linecap="round", stroke-linejoin="round", stroke-width="2", class="d-block mb-2", role="img", viewBox="0 0 24 24")
-            title Product
-            circle(cx="12", cy="12", r="10")
-            path(d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83")
-          small.d-block.mb-3.text-body-secondary &copy; 2017–2024
-        .col-6.col-md
-          h5 Features
-          ul.list-unstyled.text-small
-            li: a.link-light.text-decoration-none(href="#") Cool stuff
-            li: a.link-light.text-decoration-none(href="#") Random feature
-            li: a.link-light.text-decoration-none(href="#") Team feature
-            li: a.link-light.text-decoration-none(href="#") Stuff for developers
-            li: a.link-light.text-decoration-none(href="#") Another one
-            li: a.link-light.text-decoration-none(href="#") Last time
-        .col-6.col-md
-          h5 Resources
-          ul.list-unstyled.text-small
-            li: a.link-light.text-decoration-none(href="#") Resource name
-            li: a.link-light.text-decoration-none(href="#") Resource
-            li: a.link-light.text-decoration-none(href="#") Another resource
-            li: a.link-light.text-decoration-none(href="#") Final resource
-        .col-6.col-md
-          h5 Resources
-          ul.list-unstyled.text-small
-            li: a.link-light.text-decoration-none(href="#") Business
-            li: a.link-light.text-decoration-none(href="#") Education
-            li: a.link-light.text-decoration-none(href="#") Government
-            li: a.link-light.text-decoration-none(href="#") Gaming
-        .col-6.col-md
-          h5 About
-          ul.list-unstyled.text-small
-            li: a.link-light.text-decoration-none(href="#") Team
-            li: a.link-light.text-decoration-none(href="#") Locations
-            li: a.link-light.text-decoration-none(href="#") Privacy
-            li: a.link-light.text-decoration-none(href="#") Terms
-    script(src="quote.js")
+  hr
+  h3 댓글 작성
+  form#commentForm.form-group.row(action='/comments/' + post.post_id + '/comment', method='POST', onsubmit='return disableButton(this)')
+    .col-sm-12
+      label(for='commentInput') 댓글 작성:
+      input.form-control(type='text', id='commentInput', name='content', placeholder='댓글을 입력해주세요...', required)
+    .col-sm-12
+      br
+      button.btn.btn-primary(type='submit') 댓글 작성
+
+  hr
+  h3 댓글
+  if comments.length
+    each comment in comments
+      .comment-card
+        .comment-header
+          .comment-author-info
+            .comment-author= comment.author_name || '익명'
+            .comment-date #{comment.created_at}
+        .comment-content #{comment.content}
+        .comment-actions
+          button.btn.btn-sm.btn-outline-primary(type='button', id='likeButton-comment-' + comment.comment_id, data-comment-id=comment.comment_id, onclick='likeComment(' + comment.comment_id + ')') 좋아요 <span id='likeCount-comment-' + comment.comment_id>#{comment.like_count}</span>
+          button.btn.btn-sm.btn-outline-secondary(type='button', data-comment-id=comment.comment_id, onclick='showReplyForm(' + comment.comment_id + ')') 답글
+        form.replyForm.hidden(id='replyForm-' + comment.comment_id, action='/comments/' + post.post_id + '/reply', method='POST', onsubmit='return disableButton(this)')
+          input(type='hidden', name='parent_comment_id', value=comment.comment_id)
+          .form-group
+            label(for='replyInput-' + comment.comment_id) 답글 작성:
+            input.form-control(type='text', id='replyInput-' + comment.comment_id, name='content', placeholder='답글을 입력해주세요...', required)
+          button.btn.btn-primary(type='submit') 답글 작성
+        if comment.replies && comment.replies.length
+          .replies
+            each reply in comment.replies
+              .reply-card
+                .reply-header
+                  .reply-author-info
+                    .reply-author= reply.reply_author_name || '익명'
+                    .reply-date #{reply.reply_created_at}
+                .reply-content #{reply.reply_content}
+                .reply-actions
+                  button.btn.btn-sm.btn-outline-primary(type='button', id='likeButton-reply-' + reply.reply_id, data-reply-id=reply.reply_id, onclick='likeReply(' + reply.reply_id + ')') 좋아요 <span id='likeCount-reply-' + reply.reply_id>#{reply.like_count}</span>
+  else
+    p 댓글이 없습니다.
+
+style.
+  .comment-card {
+    border: 1px solid #ddd;
+    margin-bottom: 1em;
+    padding: 1em;
+    background-color: #f9f9f9;
+  }
+  .reply-card {
+    border: 1px solid #ddd;
+    margin-bottom: 1em;
+    margin-left: 2em;
+    padding: 1em;
+    background-color: #f1f1f1;
+  }
+  .hidden {
+    display: none;
+  }
+
+script.
+  function disableButton(form) {
+    var button = form.querySelector('button[type="submit"]');
+    if (button.disabled) {
+      return false; // 이미 비활성화된 버튼이면 폼 제출 중단
+    }
+    button.disabled = true;
+    return true; // 폼 제출을 계속 진행
+  }
+
+script.
+  function likeComment(commentId) {
+    fetch('/comments/' + commentId + '/like', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        var likeCountElement = document.getElementById('likeCount-comment-' + commentId);
+        likeCountElement.textContent = data.likeCount;
+        var likeButton = document.getElementById('likeButton-comment-' + commentId);
+        likeButton.textContent = '좋아요 취소';
+        likeButton.setAttribute('onclick', 'unlikeComment(' + commentId + ')');
+      }
+    })
+    .catch(error => {
+      console.error('Error liking comment:', error);
+    });
+  }
+
+script.
+  function unlikeComment(commentId) {
+    fetch('/comments/' + commentId + '/unlike', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        var likeCountElement = document.getElementById('likeCount-comment-' + commentId);
+        likeCountElement.textContent = data.likeCount;
+        var likeButton = document.getElementById('likeButton-comment-' + commentId);
+        likeButton.textContent = '좋아요';
+        likeButton.setAttribute('onclick', 'likeComment(' + commentId + ')');
+      }
+    })
+    .catch(error => {
+      console.error('Error unliking comment:', error);
+    });
+  }
+
+script.
+  function likeReply(replyId) {
+    fetch('/replies/' + replyId + '/like', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        var likeCountElement = document.getElementById('likeCount-reply-' + replyId);
+        likeCountElement.textContent = data.likeCount;
+        var likeButton = document.getElementById('likeButton-reply-' + replyId);
+        likeButton.textContent = '좋아요 취소';
+        likeButton.setAttribute('onclick', 'unlikeReply(' + replyId + ')');
+      }
+    })
+    .catch(error => {
+      console.error('Error liking reply:', error);
+    });
+  }
+
+script.
+  function unlikeReply(replyId) {
+    fetch('/replies/' + replyId + '/unlike', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        var likeCountElement = document.getElementById('likeCount-reply-' + replyId);
+        likeCountElement.textContent = data.likeCount;
+        var likeButton = document.getElementById('likeButton-reply-' + replyId);
+        likeButton.textContent = '좋아요';
+        likeButton.setAttribute('onclick', 'likeReply(' + replyId + ')');
+      }
+    })
+    .catch(error => {
+      console.error('Error unliking reply:', error);
+    });
+  }
+
+script.
+  function showReplyForm(commentId) {
+    var form = document.getElementById('replyForm-' + commentId);
+    if (form.classList.contains('hidden')) {
+      form.classList.remove('hidden');
+    } else {
+      form.classList.add('hidden');
+    }
+  }
+
+
+footer.container.py-5
+  .row
+    .col-12.col-md
+      svg(xmlns="http://www.w3.org/2000/svg", width="24", height="24", fill="none", stroke="currentColor", stroke-linecap="round", stroke-linejoin="round", stroke-width="2", class="d-block mb-2", role="img", viewBox="0 0 24 24")
+        title Product
+        circle(cx="12", cy="12", r="10")
+        path(d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83")
+      small.d-block.mb-3.text-body-secondary &copy; 2017–2024
+    .col-6.col-md
+      h5 Features
+      ul.list-unstyled.text-small
+        li: a.link-light.text-decoration-none(href="#") Cool stuff
+        li: a.link-light.text-decoration-none(href="#") Random feature
+        li: a.link-light.text-decoration-none(href="#") Team feature
+        li: a.link-light.text-decoration-none(href="#") Stuff for developers
+        li: a.link-light.text-decoration-none(href="#") Another one
+        li: a.link-light.text-decoration-none(href="#") Last time
+    .col-6.col-md
+      h5 Resources
+      ul.list-unstyled.text-small
+        li: a.link-light.text-decoration-none(href="#") Resource name
+        li: a.link-light.text-decoration-none(href="#") Resource
+        li: a.link-light.text-decoration-none(href="#") Another resource
+        li: a.link-light.text-decoration-none(href="#") Final resource
+    .col-6.col-md
+      h5 Resources
+      ul.list-unstyled.text-small
+        li: a.link-light.text-decoration-none(href="#") Business
+        li: a.link-light.text-decoration-none(href="#") Education
+        li: a.link-light.text-decoration-none(href="#") Government
+        li: a.link-light.text-decoration-none(href="#") Gaming
+    .col-6.col-md
+      h5 About
+      ul.list-unstyled.text-small
+        li: a.link-light.text-decoration-none(href="#") Team
+        li: a.link-light.text-decoration-none(href="#") Locations
+        li: a.link-light.text-decoration-none(href="#") Privacy
+        li: a.link-light.text-decoration-none(href="#") Terms
+  script(src="quote.js")
     script.
       document.getElementById("logoutButton").addEventListener("click", function(event) {
         event.preventDefault();
@@ -276,6 +513,5 @@ html(lang='en', data-bs-theme='auto')
         xhr.send(JSON.stringify(requestBody));
       });
 
-    
     script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js", integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r", crossorigin="anonymous")
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js", integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy", crossorigin="anonymous")

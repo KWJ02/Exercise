@@ -3,14 +3,15 @@ const cookieParser = require('cookie-parser')
 const mysql = require('mysql')
 const session = require('express-session')
 const jwt = require('jsonwebtoken')
-const router = express.Router();
 const moment = require('moment');
+const bodyParser = require('body-parser');
 const MySQLStore = require('express-mysql-session')(session)
+const router = express.Router();
 const conn = mysql.createConnection({
   host : 'localhost',
-  user : 'db',
-  password : 'a123456&',
-  database : 'db' // 데이터베이스 이름 유의
+  user : 'root',
+  password : '',
+  database : 'inf' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -22,9 +23,9 @@ app.use(session({
   store: new MySQLStore({
     host : 'localhost',
     port : 3306,
-    user : 'db',
-    password : 'a123456&',
-    database : 'db'
+    user : 'root',
+    password : '',
+    database : 'inf'
   })
 }))
 
@@ -277,98 +278,100 @@ app.get('/exerciseLib', (req, res) => {
 })
 
 app.get('/community', (req, res) => {
-  if(req.session.user_id) {
-    let sql = 'SELECT name, user_id from users WHERE user_id = ?';
-    conn.query(sql, req.session.user_id, (err, result) => {
-      if(err) {
-        console.log(err);
-        res.status(500).send('Internal Server Error');
-      } else {
-        const userName = result[0].name;
-        const query = req.query.query; // 검색어 가져오기
-        const perPage = 6; // 한 페이지에 표시할 게시글 수
-        const page = req.query.page || 1; // 페이지 매개변수 가져오기, 기본값은 1
+  const userId = req.session.user_id;
+  if (!userId) {
+    return res.redirect('/signIn');
+  }
+  
+  const query = req.query.query;
+  const perPage = 6;
+  let page = parseInt(req.query.page) || 1;
 
-        // 게시물 쿼리를 페이지에 따라 가져오기
-        let sqlPosts = `SELECT post_id, title, content, name, nameInput, created_at, view_count 
-                        FROM posts`;
+  let sql = 'SELECT name, user_id from users WHERE user_id = ?';
+  conn.query(sql, userId, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send('Internal Server Error');
+    }
 
-        if (query) {
-          // 검색어가 있는 경우 WHERE 절을 추가하여 검색을 수행합니다.
-          sqlPosts += ` WHERE title LIKE '%${query}%' OR content LIKE '%${query}%'`;
-        }
+    if (!result.length) {
+      return res.redirect('/signIn');
+    }
 
-        sqlPosts += ` ORDER BY created_at DESC 
-                      LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
-
-        conn.query(sqlPosts, (err, postsResult) => {
-          if (err) {
-            console.error(err);
-            res.status(500).send('Error fetching posts');
-          } else {
-            // Moment.js를 사용하여 created_at 값을 원하는 형식으로 변환
-            postsResult.forEach(post => {
-              post.created_at = moment(post.created_at).format('YYYY-MM-DD HH:mm:ss');
-            });
-
-            // 다음 페이지가 있는지 확인
-            const hasNextPage = postsResult.length === perPage;
-
-            res.render('community', { name: userName, id: result[0].user_id, posts: postsResult, page, hasNextPage });
-          }
-        });
-      }
-    });
-  } else {
-    // 세션이 없는 경우
-    const query = req.query.query; // 검색어 가져오기
-    const perPage = 6; // 한 페이지에 표시할 게시글 수
-    const page = req.query.page || 1; // 페이지 매개변수 가져오기, 기본값은 1
-
-    // 게시물 쿼리를 페이지에 따라 가져오기
-    let sqlPosts = `SELECT post_id, title, content, name, nameInput, created_at, view_count 
-                    FROM posts`;
+    const userName = result[0].name;
+    let sqlPosts = `SELECT post_id, title, content, name, created_at, view_count FROM posts`;
 
     if (query) {
-      // 검색어가 있는 경우 WHERE 절을 추가하여 검색을 수행합니다.
       sqlPosts += ` WHERE title LIKE '%${query}%' OR content LIKE '%${query}%'`;
     }
 
-    sqlPosts += ` ORDER BY created_at DESC 
-                  LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+    sqlPosts += ` ORDER BY created_at DESC`;
 
     conn.query(sqlPosts, (err, postsResult) => {
       if (err) {
         console.error(err);
-        res.status(500).send('Error fetching posts');
-      } else {
-        // Moment.js를 사용하여 created_at 값을 원하는 형식으로 변환
-        postsResult.forEach(post => {
-          post.created_at = moment(post.created_at).format('YYYY-MM-DD HH:mm:ss');
-        });
-
-        // 다음 페이지가 있는지 확인
-        const hasNextPage = postsResult.length === perPage;
-
-        res.render('community', { posts: postsResult, page, hasNextPage });
+        return res.status(500).send('Error fetching posts');
       }
+
+      const totalPosts = postsResult.length;
+      const totalPages = Math.ceil(totalPosts / perPage);
+
+      // 페이지 번호가 범위를 벗어나지 않도록 조정
+      if (page < 1) {
+        page = 1;
+      } else if (page > totalPages) {
+        page = totalPages;
+      }
+
+      const startIndex = (page - 1) * perPage;
+      const endIndex = Math.min(startIndex + perPage, totalPosts);
+
+      const postsOnPage = postsResult.slice(startIndex, endIndex);
+      postsOnPage.forEach(post => {
+        post.created_at = moment(post.created_at).format('YYYY-MM-DD HH:mm:ss');
+      });
+
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
+
+      res.render('community', { name: userName, id: result[0].user_id, posts: postsOnPage, page, hasNextPage, hasPreviousPage });
     });
-  }
+  });
 });
+
 
 // 커뮤니티 페이지에 새 게시물 추가하기
 app.post('/community', (req, res) => {
-  const { post_id, title, content, name, nameInput, created_at, view_count } = req.body;
-  
-  // 게시물 추가를 위한 SQL 쿼리
-  const sql = 'INSERT INTO posts (post_id, title, content, name, nameInput, created_at, view_count) VALUES (?, ?, ?, ?, ?, ?, 0)';
-  conn.query(sql, [post_id, title, content, name, nameInput, created_at, view_count], (err, result) => {
+  const { post_id, title, content, created_at } = req.body;
+  const userId = req.session.user_id; // 세션에서 user_id 가져오기
+
+  if (!userId) {
+    return res.status(401).send('로그인이 필요합니다.');
+  }
+
+  // 사용자 이름을 가져오는 쿼리
+  const sqlGetName = 'SELECT name FROM users WHERE user_id = ?';
+  conn.query(sqlGetName, [userId], (err, userResult) => {
     if (err) {
       console.error(err);
-      res.status(500).send('Error creating post');
-    } else {
-      res.redirect('/community'); // 새 게시물이 추가되면 커뮤니티 페이지로 리다이렉트
+      return res.status(500).send('사용자 정보를 가져오는 중 오류가 발생했습니다.');
     }
+
+    if (!userResult.length) {
+      return res.status(404).send('사용자를 찾을 수 없습니다.');
+    }
+
+    const userName = userResult[0].name;
+
+    // 게시물을 추가하는 쿼리
+    const sqlInsertPost = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count) VALUES (?, ?, ?, ?, ?, 0)';
+    conn.query(sqlInsertPost, [post_id, title, content, userName, created_at], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('게시물을 작성하는 중 오류가 발생했습니다.');
+      }
+      res.redirect('/community'); // 새 게시물이 추가되면 커뮤니티 페이지로 리다이렉트
+    });
   });
 });
 
@@ -394,12 +397,12 @@ app.post('/community', (req, res) => {
 
 // 게시물 작성 페이지에서 게시물을 DB에 저장하는 엔드포인트
 app.post('/write', (req, res) => {
-  const { post_id, title, content, name, nameInput, created_at, view_count } = req.body;
+  const { post_id, title, content, created_at } = req.body;
   const userId = req.session.user_id;
 
   // 사용자의 이름을 가져오기 위한 쿼리
   const sqlGetUserName = 'SELECT name FROM users WHERE user_id = ?';
-  conn.query(sqlGetUserName, userId, (err, userResult) => {
+  conn.query(sqlGetUserName, [userId], (err, userResult) => {
     if (err) {
       console.error(err);
       res.status(500).send('Error fetching user data');
@@ -407,8 +410,8 @@ app.post('/write', (req, res) => {
       if (userResult.length > 0) { // 사용자 정보가 존재하는 경우
         const name = userResult[0].name; // 사용자 이름
         // 게시물 추가를 위한 SQL 쿼리
-        const sql = 'INSERT INTO posts (post_id, title, content, name, nameInput, created_at, view_count) VALUES (?, ?, ?, ?, ?, ?, 0)';
-        conn.query(sql, [post_id, title, content, name, nameInput, created_at, view_count], (err, result) => {
+        const sql = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count) VALUES (?, ?, ?, ?, ?, 0)';
+        conn.query(sql, [post_id, title, content, name, created_at], (err, result) => {
           if (err) {
             console.error(err);
             res.status(500).send('Error creating post');
@@ -427,7 +430,7 @@ app.post('/write', (req, res) => {
 app.get('/board/:postId', (req, res) => {
   const postId = req.params.postId;
   const sql = 'SELECT * FROM posts WHERE post_id = ?';
-  conn.query(sql, postId, (err, result) => {
+  conn.query(sql, [postId], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).send('Error fetching post content');
@@ -441,69 +444,349 @@ app.get('/board/:postId', (req, res) => {
   });
 });
 
-// viewPost 페이지 렌더링
+// 특정 게시글의 내용을 가져오는 엔드포인트
 app.get('/viewPost', (req, res) => {
   const postId = req.query.postId;
-  console.log(postId)
 
   // postId를 이용하여 해당 게시글의 내용을 DB에서 조회
   const sqlGetPostContent = 'SELECT * FROM posts WHERE post_id = ?';
-  conn.query(sqlGetPostContent, postId, (err, result) => {
-      if (err) {
-          console.error(err);
-          res.status(500).send('Error fetching post content');
-      } else {
-          const post = result[0];
-          if (!post) {
-              res.status(404).send('Post not found');
-              return;
-          }
-          
-          if (req.session.user_id) {
-              // 사용자 인증이 되어 있으면 사용자 정보를 가져와서 함께 전달
-              const sqlGetUserName = 'SELECT name FROM users WHERE user_id = ?';
-              conn.query(sqlGetUserName, req.session.user_id, (err, userResult) => {
-                  if (err) {
-                      console.error(err);
-                      res.status(500).send('Error fetching user data');
-                  } else {
-                      const userName = userResult[0].name;
-                      res.render('viewPost', { post, name: userName });
-                  }
-              });
-          } else {
-              // 사용자 인증이 안 되어 있으면 게시글만 전달
-              res.render('viewPost', { post });
-          }
+  conn.query(sqlGetPostContent, [postId], (err, postResult) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('게시글 내용을 불러오는 중 오류가 발생했습니다.');
+    } else {
+      const post = postResult[0];
+      if (!post) {
+        res.status(404).send('게시글을 찾을 수 없습니다.');
+        return;
       }
+
+      // 댓글 가져오는 쿼리 수정
+      const sqlGetComments = `
+        SELECT 
+          c.comment_id,
+          c.content, 
+          c.created_at, 
+          (SELECT COUNT(*) FROM likes WHERE comment_id = c.comment_id) AS like_count, 
+          u.name AS author_name
+        FROM comments c 
+        LEFT JOIN users u ON c.author_id = u.user_id 
+        WHERE c.post_id = ? AND c.parent_comment_id IS NULL`;
+
+      // 답글 가져오는 쿼리 수정
+      const sqlGetReplies = `
+        SELECT 
+          r.reply_id,
+          r.parent_comment_id,
+          r.content AS reply_content,
+          r.created_at AS reply_created_at,
+          u_reply.name AS reply_author_name,
+          (SELECT COUNT(*) FROM likes WHERE reply_id = r.reply_id) AS like_count
+        FROM replies r
+        LEFT JOIN users u_reply ON r.author_id = u_reply.user_id 
+        WHERE r.post_id = ?`;
+
+      conn.query(sqlGetComments, [postId], (err, commentsResult) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('댓글을 불러오는 중 오류가 발생했습니다.');
+          return;
+        }
+
+        const comments = commentsResult;
+
+        conn.query(sqlGetReplies, [postId], (err, repliesResult) => {
+          if (err) {
+            console.error(err);
+            res.status(500).send('답글을 불러오는 중 오류가 발생했습니다.');
+            return;
+          }
+
+          // 댓글에 답글을 계층 구조로 추가
+          const repliesByCommentId = repliesResult.reduce((acc, reply) => {
+            acc[reply.parent_comment_id] = acc[reply.parent_comment_id] || [];
+            acc[reply.parent_comment_id].push(reply);
+            return acc;
+          }, {});
+
+          comments.forEach(comment => {
+            comment.replies = repliesByCommentId[comment.comment_id] || [];
+          });
+
+          if (req.session.user_id) {
+            // 사용자 인증이 되어 있으면 사용자 정보를 가져와서 함께 전달
+            const sqlGetUserName = 'SELECT name FROM users WHERE user_id = ?';
+            conn.query(sqlGetUserName, [req.session.user_id], (err, userResult) => {
+              if (err) {
+                console.error(err);
+                res.status(500).send('사용자 정보를 불러오는 중 오류가 발생했습니다.');
+              } else {
+                const userName = userResult[0].name;
+                post.view_count++;
+                res.render('viewPost', { post, name: userName, comments });
+              }
+            });
+          } else {
+            // 사용자 인증이 안 되어 있으면 게시글과 댓글만 전달
+            post.view_count++;
+            res.render('viewPost', { post, comments });
+          }
+        });
+      });
+    }
   });
 });
 
-
-// POST /comments - 새로운 댓글 생성
-router.post('/comments', (req, res) => {
+// 댓글 작성
+router.post('/:postId/comment', (req, res) => {
+  const postId = req.params.postId;
   const { content } = req.body;
-  const authorId = req.session.user_id || null; // 사용자가 인증되어 있지 않으면 null
+  const authorId = req.session.user_id;
 
   if (!content) {
-    res.status(400).send('댓글 내용이 전달되지 않았습니다.');
+    return res.status(400).send('댓글 내용이 제공되지 않았습니다.');
+  }
+
+  const sql = 'INSERT INTO comments (post_id, content, author_id) VALUES (?, ?, ?)';
+  const values = [postId, content, authorId];
+
+  conn.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('댓글 작성 오류:', err);
+      return res.status(500).send('댓글 작성 실패');
+    }
+    res.redirect(`/viewPost?postId=${postId}`);
+  });
+});
+
+// 답글 작성
+router.post('/:postId/reply', (req, res) => {
+  const { content, parent_comment_id } = req.body;
+  const postId = req.params.postId;
+  const authorId = req.session.user_id || null;
+
+  if (!content) {
+    return res.status(400).send('답글 내용이 제공되지 않았습니다.');
+  }
+
+  // 트랜잭션 시작
+  conn.beginTransaction((err) => {
+    if (err) {
+      console.error('트랜잭션 시작 오류:', err);
+      return res.status(500).send('트랜잭션 시작 실패');
+    }
+
+    const sql = 'INSERT INTO replies (post_id, content, author_id, parent_comment_id) VALUES (?, ?, ?, ?)';
+    const values = [postId, content, authorId, parent_comment_id];
+
+    conn.query(sql, values, (err, result) => {
+      if (err) {
+        return conn.rollback(() => {
+          console.error('답글 작성 오류:', err);
+          return res.status(500).send('답글 작성 실패');
+        });
+      }
+
+      conn.commit((err) => {
+        if (err) {
+          return conn.rollback(() => {
+            console.error('트랜잭션 커밋 오류:', err);
+            return res.status(500).send('트랜잭션 커밋 실패');
+          });
+        }
+
+        console.log('답글이 성공적으로 작성되었습니다.');
+        res.redirect(`/viewPost?postId=${postId}`);
+      });
+    });
+  });
+});
+
+module.exports = router;
+
+// 댓글 좋아요 라우터 정의
+router.post('/:commentId/like', (req, res) => {
+  const commentId = req.params.commentId;
+  const userId = req.session.user_id;
+
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' });
+  }
+
+  // 사용자가 이미 좋아요를 눌렀는지 확인하는 SQL 쿼리
+  const sqlCheckLike = 'SELECT COUNT(*) AS likeCount FROM likes WHERE comment_id = ? AND user_id = ?';
+  conn.query(sqlCheckLike, [commentId, userId], (err, result) => {
+    if (err) {
+      console.error('좋아요 여부 확인 중 오류 발생:', err);
+      return res.status(500).json({ error: '좋아요 여부 확인 실패' });
+    }
+
+    const likeCount = result[0].likeCount;
+
+    if (likeCount > 0) {
+      return res.status(400).json({ error: '이미 좋아요를 눌렀습니다.' });
+    }
+
+    // 좋아요 정보를 데이터베이스에 삽입하는 SQL 쿼리
+    const sqlInsertLike = 'INSERT INTO likes (comment_id, user_id) VALUES (?, ?)';
+    conn.query(sqlInsertLike, [commentId, userId], (err) => {
+      if (err) {
+        console.error('댓글 좋아요 처리 중 오류 발생:', err);
+        return res.status(500).json({ error: '댓글 좋아요 처리 실패' });
+      }
+
+      // 증가된 좋아요 수를 확인하는 SQL 쿼리
+      const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM likes WHERE comment_id = ?';
+      conn.query(sqlGetLikeCount, [commentId], (err, result) => {
+        if (err) {
+          console.error('좋아요 수 조회 중 오류 발생:', err);
+          return res.status(500).json({ error: '좋아요 수 조회 실패' });
+        }
+
+        const updatedLikeCount = result[0].likeCount;
+        res.json({ likeCount: updatedLikeCount });
+      });
+    });
+  });
+});
+
+// 댓글 좋아요 취소 라우터 정의
+router.post('/:commentId/unlike', (req, res) => {
+  const commentId = req.params.commentId;
+  const userId = req.session.user_id;
+
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' });
+  }
+
+  // 사용자의 좋아요 정보를 삭제하는 SQL 쿼리
+  const sqlDeleteLike = 'DELETE FROM likes WHERE comment_id = ? AND user_id = ?';
+  conn.query(sqlDeleteLike, [commentId, userId], (err) => {
+    if (err) {
+      console.error('댓글 좋아요 취소 중 오류 발생:', err);
+      return res.status(500).json({ error: '댓글 좋아요 취소 실패' });
+    }
+
+    // 감소된 좋아요 수를 확인하는 SQL 쿼리
+    const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM likes WHERE comment_id = ?';
+    conn.query(sqlGetLikeCount, [commentId], (err, result) => {
+      if (err) {
+        console.error('좋아요 수 조회 중 오류 발생:', err);
+        return res.status(500).json({ error: '좋아요 수 조회 실패' });
+      }
+
+      const updatedLikeCount = result[0].likeCount;
+      res.json({ likeCount: updatedLikeCount });
+    });
+  });
+});
+
+// 답글 좋아요 라우터 정의
+router.post('/:replyId/like', (req, res) => {
+  const replyId = req.params.replyId;
+  const userId = req.session.user_id;
+
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' });
+  }
+
+  // 사용자가 이미 좋아요를 눌렀는지 확인하는 SQL 쿼리
+  const sqlCheckLike = 'SELECT COUNT(*) AS likeCount FROM reply_likes WHERE reply_id = ? AND user_id = ?';
+  conn.query(sqlCheckLike, [replyId, userId], (err, result) => {
+    if (err) {
+      console.error('좋아요 여부 확인 중 오류 발생:', err);
+      return res.status(500).json({ error: '좋아요 여부 확인 실패' });
+    }
+
+    const likeCount = result[0].likeCount;
+
+    if (likeCount > 0) {
+      return res.status(400).json({ error: '이미 좋아요를 눌렀습니다.' });
+    }
+
+    // 좋아요 정보를 데이터베이스에 삽입하는 SQL 쿼리
+    const sqlInsertLike = 'INSERT INTO reply_likes (reply_id, user_id) VALUES (?, ?)';
+    conn.query(sqlInsertLike, [replyId, userId], (err) => {
+      if (err) {
+        console.error('답글 좋아요 처리 중 오류 발생:', err);
+        return res.status(500).json({ error: '답글 좋아요 처리 실패' });
+      }
+
+      // 증가된 좋아요 수를 확인하는 SQL 쿼리
+      const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM reply_likes WHERE reply_id = ?';
+      conn.query(sqlGetLikeCount, [replyId], (err, result) => {
+        if (err) {
+          console.error('좋아요 수 조회 중 오류 발생:', err);
+          return res.status(500).json({ error: '좋아요 수 조회 실패' });
+        }
+
+        const updatedLikeCount = result[0].likeCount;
+        res.json({ likeCount: updatedLikeCount });
+      });
+    });
+  });
+});
+
+// 답글 좋아요 취소 라우터 정의
+router.post('/:replyId/unlike', (req, res) => {
+  const replyId = req.params.replyId;
+  const userId = req.session.user_id;
+
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' });
+  }
+
+  // 사용자의 좋아요 정보를 삭제하는 SQL 쿼리
+  const sqlDeleteLike = 'DELETE FROM reply_likes WHERE reply_id = ? AND user_id = ?';
+  conn.query(sqlDeleteLike, [replyId, userId], (err) => {
+    if (err) {
+      console.error('답글 좋아요 취소 중 오류 발생:', err);
+      return res.status(500).json({ error: '답글 좋아요 취소 실패' });
+    }
+
+    // 감소된 좋아요 수를 확인하는 SQL 쿼리
+    const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM reply_likes WHERE reply_id = ?';
+    conn.query(sqlGetLikeCount, [replyId], (err, result) => {
+      if (err) {
+        console.error('좋아요 수 조회 중 오류 발생:', err);
+        return res.status(500).json({ error: '좋아요 수 조회 실패' });
+      }
+
+      const updatedLikeCount = result[0].likeCount;
+      res.json({ likeCount: updatedLikeCount });
+    });
+  });
+});
+
+module.exports = router;
+
+app.use('/comments', router);
+
+// Reply posting
+router.post('/:postId/reply', (req, res) => {
+  const { content, parent_comment_id } = req.body;
+  const postId = req.params.postId;
+  const authorId = req.session.user_id || null; // If user is not authenticated, set to null
+
+  if (!content) {
+    res.status(400).send('Reply content not provided');
     return;
   }
 
-  const sql = 'INSERT INTO comments (content, author_id) VALUES (?, ?)';
-  const values = [content, authorId];
+  const sql = 'INSERT INTO replies (post_id, content, author_id, parent_comment_id) VALUES (?, ?, ?, ?)';
+  const values = [postId, content, authorId, parent_comment_id];
 
-  // 쿼리 실행
   conn.query(sql, values, (err, result) => {
-      if (err) {
-          console.error('댓글 생성 오류:', err);
-          res.status(500).send('댓글 생성 실패');
-          return;
-      }
-      console.log('댓글이 성공적으로 생성되었습니다.');
-      res.status(201).send('댓글이 성공적으로 생성되었습니다.');
+    if (err) {
+      console.error('Error creating reply:', err);
+      res.status(500).send('Reply creation failed');
+      return;
+    }
+    console.log('Reply successfully created.');
+    res.redirect(`/viewPost?postId=${postId}`);
   });
 });
+
 
 
 app.get('/myPage', (req, res) => {

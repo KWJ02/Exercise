@@ -15,7 +15,6 @@ html(lang="en")
     title Exercise-Recommender
     link(rel="canonical", href="https://getbootstrap.kr/docs/5.3/examples/product/")
     // 부트스트랩 최신 버전 CSS CDN 링크 추가
-    
     link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH", crossorigin="anonymous")
     link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/@docsearch/css@3")
     // Favicons
@@ -25,19 +24,14 @@ html(lang="en")
     link(rel="mask-icon", href="/docs/5.3/assets/img/favicons/safari-pinned-tab.svg", color="#712cf9")
     link(rel="icon", href="/docs/5.3/assets/img/favicons/favicon.ico")
     meta(name="theme-color", content="#712cf9")
-    
     link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css")
- 
     style.
       /* 본문 영역 스타일 */
       body {
         background-image: linear-gradient(to top left, #bdc3c7, #2c3e50);
-        background-repeat : no-repeat;
-        background-size : cover;
+        background-repeat: no-repeat;
+        background-size: cover;
       }
-
-   
-
   body
     nav.navbar.navbar-expand-md.bg-dark.sticky-top.border-bottom(data-bs-theme="dark")
       .container
@@ -61,140 +55,127 @@ html(lang="en")
                 a.nav-link(href="/exerciseRec") 운동 추천
               li.nav-item
                 a.nav-link(href="/community") 커뮤니티
-              if(name)
+              if name
                 li.nav-item.dropdown
                   a.nav-link.dropdown-toggle(href="#", role="button", data-bs-toggle="dropdown", aria-expanded="false")= name + '님'
                   .dropdown-menu
                     - if(id === 'admin')
                       a.dropdown-item(href="/myPage") 관리자 페이지
                       a#logoutButton.dropdown-item(href="/main") 로그아웃
-                    
                     - else
                       a.dropdown-item(href="/myPage") 마이페이지
                       a#logoutButton.dropdown-item(href="/main") 로그아웃
               else
                 li.nav-item
                   a.nav-link(href="/signIn") 로그인
-              
- main.container.mt-5
-  h1.mb-3 게시판
-  form.form-inline.d-flex.justify-content-end(method="GET", action="/board/boardList")
-    // 검색 폼
-    form.form-inline.mb-2(method="GET", action="/community")
-      .form-group.row.align-items-center 
-        label.col-sm-2(for='searchText') 
-        .col-sm-8.d-flex 
-          input#searchText.form-control(type="search", placeholder="Search...", aria-label="Search")
-          button.btn.btn-primary.ml-2(type="submit") click
-  hr.mt-4.mb-4
-
-
-
-  // 게시판 테이블
-  table.table.table-hover
-    thead
-      tr
-        th.border 번호
-        th.border 제목
-        th.border 작성자
-        th.border 작성일
-        th.border 조회수
-        th.border 게시글 내용
-    tbody
-      if posts && posts.length > 0
-        each post in posts
+    main.container.mt-5
+      h1.mb-3 게시판
+      form.form-inline.d-flex.justify-content-end(method="GET", action="/board/boardList")
+        // 검색 폼
+        form.form-inline.mb-2(method="GET", action="/community")
+          .form-group.row.align-items-center 
+            label.col-sm-2(for='searchText')
+            .col-sm-8.d-flex 
+              input#searchText.form-control(type="search", placeholder="Search...", aria-label="Search")
+              button.btn.btn-primary.ml-2(type="submit") click
+      hr.mt-4.mb-4
+      // 게시판 테이블
+      table.table.table-hover
+        thead
           tr
-            td.border= post.post_id
-            td.border= post.title
-            td.border= post.nameInput
-            td.border= post.created_at
-            td.border= post.view_count
-            td.border
-              a(href="/viewPost?postId=" + post.post_id) 내용 확인하기
+            th.border 번호
+            th.border 제목
+            th.border 작성자
+            th.border 작성일
+            th.border 조회수
+            th.border 게시글 내용
+        tbody
+          if posts && posts.length > 0
+            each post in posts
+              tr
+                td.border= post.post_id
+                td.border= post.title
+                td.border= post.name
+                td.border= post.created_at
+                td.border= post.view_count
+                td.border
+                  a(href="/viewPost?postId=" + post.post_id) 내용 확인하기
+          else
+            tr
+              td(colspan="6") No data available
+      hr
+      // 이전 및 다음 페이지 버튼
+      .row
+        .col-6.text-left
+          // 이전 페이지로 가는 버튼
+          if page > 1
+            button.btn.btn-primary.mb-2.pull-left(onclick="location.href='/community?page=" + (page - 1) + "'") 이전
+        .col-6.text-right
+          // 다음 페이지로 가는 버튼
+          if hasNextPage
+            button.btn.btn-primary.mb-2.pull-right(onclick="location.href='/community?page=" + (page + 1) + "'") 다음
+      .row
+        .col-12.text-center
+          // 글쓰기 버튼
+          button.btn.btn-default.mb-2(onclick="location.href='/write'") 글쓰기
+    footer.container.py-5(style='margin-top: 50px;')
+      .row
+        .col-12.col-md
+          svg(width="24", height="24", xmlns="http://www.w3.org/2000/svg", fill="none", stroke="currentColor", stroke-linecap="round", stroke-linejoin="round", stroke-width="2", class="d-block mb-2", role="img", viewBox="0 0 24 24")
+            title Product
+            circle(cx="12", cy="12", r="10")
+            path(d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94")
+          small.d-block.mb-3.text-body-secondary &copy; 2017–2024
+        .col-6.col-md
+          h5 Features
+          ul.list-unstyled.text-small
+            li
+              a.link-light.text-decoration-none(href="#") Cool stuff
+            li
+              a.link-light.text-decoration-none(href="#") Random feature
+            li
+              a.link-light.text-decoration-none(href="#") Team feature
+            li
+              a.link-light.text-decoration-none(href="#") Stuff for developers
+            li
+              a.link-light.text-decoration-none(href="#") Another one
+            li
+              a.link-light.text-decoration-none(href="#") Last time
+        .col-6.col-md
+          h5 Resources
+          ul.list-unstyled.text-small
+            li
+              a.link-light.text-decoration-none(href="#") Resource name
+            li
+              a.link-light.text-decoration-none(href="#") Resource
+            li
+              a.link-light.text-decoration-none(href="#") Another resource
+            li
+              a.link-light.text-decoration-none(href="#") Final resource
+        .col-6.col-md
+          h5 Resources
+          ul.list-unstyled.text-small
+            li
+              a.link-light.text-decoration-none(href="#") Business
+            li
+              a.link-light.text-decoration-none(href="#") Education
+            li
+              a.link-light.text-decoration-none(href="#") Government
+            li
+              a.link-light.text-decoration-none(href="#") Gaming
+        .col-6.col-md
+          h5 About
+          ul.list-unstyled.text-small
+            li
+              a.link-light.text-decoration-none(href="#") Team
+            li
+              a.link-light.text-decoration-none(href="#") Locations
+            li
+              a.link-light.text-decoration-none(href="#") Privacy
+            li
+              a.link-light.text-decoration-none(href="#") Terms
 
-      else
-        tr
-          td(colspan="6") No data available
-
-  hr
-  
-  // 이전 및 다음 페이지 버튼
-  .row
-    .col-6.text-left
-      // 이전 페이지로 가는 버튼
-      if page > 1
-        button.btn.btn-primary.mb-2.pull-left(onclick="location.href='/community?page=" + (page - 1) + "'") 이전
-    .col-6.text-right
-      // 다음 페이지로 가는 버튼
-      if hasNextPage
-        button.btn.btn-primary.mb-2.pull-right(onclick="location.href='/community?page=" + (page + 1) + "'") 다음
-
-  .row
-  .col-12.text-center
-    // 글쓰기 버튼
-    button.btn.btn-default.mb-2(onclick="location.href='/write'") 글쓰기
-
-
-
-  footer.container.py-5(style='margin-top : 50px;')
-    .row
-      .col-12.col-md
-        svg(width="24", height="24", xmlns="http://www.w3.org/2000/svg", fill="none", stroke="currentColor", stroke-linecap="round", stroke-linejoin="round", stroke-width="2", class="d-block mb-2", role="img", viewBox="0 0 24 24")
-          title Product
-          circle(cx="12", cy="12", r="10")
-          path(d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83m13.79-4l-5.74 9.94")
-        small.d-block.mb-3.text-body-secondary &copy; 2017–2024
-      .col-6.col-md
-        h5 Features
-        ul.list-unstyled.text-small
-          li
-            a.link-light.text-decoration-none(href="#") Cool stuff
-          li
-            a.link-light.text-decoration-none(href="#") Random feature
-          li
-            a.link-light.text-decoration-none(href="#") Team feature
-          li
-            a.link-light.text-decoration-none(href="#") Stuff for developers
-          li
-            a.link-light.text-decoration-none(href="#") Another one
-          li
-            a.link-light.text-decoration-none(href="#") Last time
-      .col-6.col-md
-        h5 Resources
-        ul.list-unstyled.text-small
-          li
-            a.link-light.text-decoration-none(href="#") Resource name
-          li
-            a.link-light.text-decoration-none(href="#") Resource
-          li
-            a.link-light.text-decoration-none(href="#") Another resource
-          li
-            a.link-light.text-decoration-none(href="#") Final resource
-      .col-6.col-md
-        h5 Resources
-        ul.list-unstyled.text-small
-          li
-            a.link-light.text-decoration-none(href="#") Business
-          li
-            a.link-light.text-decoration-none(href="#") Education
-          li
-            a.link-light.text-decoration-none(href="#") Government
-          li
-            a.link-light.text-decoration-none(href="#") Gaming
-      .col-6.col-md
-        h5 About
-        ul.list-unstyled.text-small
-          li
-            a.link-light.text-decoration-none(href="#") Team
-          li
-            a.link-light.text-decoration-none(href="#") Locations
-          li
-            a.link-light.text-decoration-none(href="#") Privacy
-          li
-            a.link-light.text-decoration-none(href="#") Terms
-
-
-  script.
+    script.
       document.getElementById("logoutButton").addEventListener("click", function(event) {
         event.preventDefault();
         var url = "/logout";
@@ -214,12 +195,6 @@ html(lang="en")
         var requestBody = {}; // 빈 객체로 설정
         xhr.send(JSON.stringify(requestBody));
       });
-
-
-
-
-  script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
-  
-  
-  script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js", integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r", crossorigin="anonymous")
-  script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js", integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy", crossorigin="anonymous")
+    script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js", integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r", crossorigin="anonymous")
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js", integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy", crossorigin="anonymous")

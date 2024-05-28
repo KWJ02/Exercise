@@ -66,22 +66,18 @@ html(lang="en")
               
     // 본문 영역
   // Form for Writing
-  hr
+hr
 form(action="community", method="post", style="width: 80%; margin: 0 auto;")
   h2(style="color: #333; text-align: center; font-family: 'Arial', sans-serif;") 글쓰기
-  hr(style="border: none; border-bottom: 1px solid #ccc; margin-bottom: 10px;")
+  hr(style="border: none; border-bottom: 2px solid #ccc; margin-bottom: 10px;")
   div(style="margin-bottom: 10px; text-align: center;")
-    label(for="nameInput", style="font-weight: bold; color: #333; display: block; margin-bottom: 8px;") name
-    input(type="text", id="nameInput", placeholder="이름을 입력하세요", name="nameInput", style="width: 80%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; display: inline-block;")
-    div(style="margin-bottom: 10px; text-align: center;")
-    label(for="title", style="font-weight: bold; color: #333; display: block; margin-bottom: 8px;") Title
+    label(for="title", style="font-weight: bold; color: #333; display: block; margin-bottom: 10px;") Title
     input(type="text", id="title", placeholder="제목을 입력하세요", name="title", style="width: 80%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; display: inline-block;")
   div(style="margin-bottom: 10px; text-align: center;")
-    label(for="content", style="font-weight: bold; color: #333; display: block; margin-bottom: 8px;") Comment
-    textarea(id="content", placeholder="내용을 입력하세요", name="content", style="width: 80%; height: 250px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; display: inline-block;")
-  div(style="text-align: center;")
+    label(for="content", style="font-weight: bold; color: #333; display: block; margin-bottom: 10px;") Comment
+    textarea(id="content", placeholder="내용을 입력하세요", name="content", style="width: 80%; height: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; display: inline-block;")
+  div(style="text-align: center; margin-top: 20px;") 
    input(type="submit", value="등록", onclick="alert('작성 완료!')", style="background-color: #1235; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px; border-radius: 5px; cursor: pointer; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); transition: 0.3s;")
-
 
   footer.container.py-5(style='margin-top : 50px;')
     .row
