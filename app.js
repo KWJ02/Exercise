@@ -803,7 +803,11 @@ app.get('/myPage', (req, res) => {
       if(err){
         res.send('Internal Server Error')
       } else {
-        res.render('myPage', {name : result[0].name, month : month, sevenDaysAgo : dayOfSevenDaysAgo})
+        if(req.session.user_id === "admin"){
+          res.render('adminPage', {name : result[0].name, month : month, sevenDaysAgo : dayOfSevenDaysAgo})
+        } else {
+          res.render('myPage', {name : result[0].name, month : month, sevenDaysAgo : dayOfSevenDaysAgo})
+        }
       }
     })
   } else {
