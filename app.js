@@ -259,7 +259,7 @@ app.get('/exerciseRec', (req, res) => {
       }
     })
   } else {
-    res.render('exerciseRec')
+    res.redirect('../signIn')
   }
 })
 
@@ -272,13 +272,73 @@ app.post('/recommend', (req, res) => {
   console.log(diff)
   let sql = 'SELECT name FROM exercises WHERE pos = ? AND part = ?'
 
-
+  res.render('recommend')
 })
+
+app.get('/recommend', (req, res) => {
+  res.render('recommend')
+})
+
 
 // ********************************** 운동 라이브러리
 app.get('/exerciseLib', (req, res) => {
   res.send('운동 라이브러리 개설 예정')
 })
+
+app.get('/myPage/exerciseManage', (req, res) => {
+  let sql = 'SELECT * FROM exercise'
+  if(req.session.user_id){
+    conn.query(sql,(err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      res.render('exerciseManage', {rows : rows})
+    })
+  } else {
+    res.redirect('/signIn')
+  }
+})
+
+app.post('/myPage/exerciseManage', (req, res) => {
+  let pos = req.body.pos
+  let part = req.body.part
+  let name = req.body.name
+
+  let sql = 'INSERT INTO exercise (name, pos, part) VALUES (?,?,?)'
+  conn.query(sql, [name, pos, part], (err, rows) => {
+    if(err){
+      console.log(err)
+      res.send('Internal Server Error')
+    }
+    let sql2 = 'SELECT * FROM exercise'
+    conn.query(sql2, (err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      res.render('exerciseManage', {alertMessage : "성공적으로 저장되었습니다!", rows : rows})
+    })
+  })
+})
+
+app.post('/myPage/deleteExercise', (req, res) => {
+  const id = req.body.id;
+  console.log(`Received delete request for ID: ${id}`);
+  const query = 'DELETE FROM exercise WHERE id = ?';
+  conn.query(query, [id], (err, result) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+    if (result.affectedRows > 0) {
+      res.sendStatus(200);
+    } else {
+      res.status(404).json({ message: 'Not Found' });
+    }
+  });
+});
+
 
 app.get('/community', (req, res) => {
   const userId = req.session.user_id;
