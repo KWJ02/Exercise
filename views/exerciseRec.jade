@@ -122,14 +122,14 @@ html(lang="en")
               p(style="text-align : left;") 난이도를 선택하세요.
               hr
               .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
-                input(type='radio', class='btn-check', name='options-difficulty', id='hard', value='상', autocomplete='off' disabled)
-                label(for='hard', class='btn btn-outline-danger' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 상
+                input(type='radio', class='btn-check', name='options-difficulty', id='intense', value='intense', autocomplete='off' disabled)
+                label(for='intense', class='btn btn-outline-danger' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 상
 
-                input(type='radio', class='btn-check', name='options-difficulty', id='middle', value='중', autocomplete='off' disabled)
-                label(for='middle', class='btn btn-outline-info' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 중
+                input(type='radio', class='btn-check', name='options-difficulty', id='intermediate', value='intermediate', autocomplete='off' disabled)
+                label(for='intermediate', class='btn btn-outline-info' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 중
                 
-                input(type='radio', class='btn-check', name='options-difficulty', id='low', value='하', autocomplete='off' disabled)
-                label(for='low', class='btn btn-outline-success' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하
+                input(type='radio', class='btn-check', name='options-difficulty', id='beginner', value='beginner', autocomplete='off' disabled)
+                label(for='beginner', class='btn btn-outline-success' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하
 
               .form_container
                 input.btn.btn-primary(type="submit" value="제출" style="width: 100%; color : #fff; margin-top : 50px" id="submit_button" disabled)
@@ -224,9 +224,9 @@ html(lang="en")
       const partBtn3 = document.getElementById('back')
       const partBtn4 = document.getElementById('core')
       const partBtn5 = document.getElementById('lowerBody')
-      const diffBtn1 = document.getElementById('hard')
-      const diffBtn2 = document.getElementById('middle')
-      const diffBtn3 = document.getElementById('low')
+      const diffBtn1 = document.getElementById('intense')
+      const diffBtn2 = document.getElementById('intermediate')
+      const diffBtn3 = document.getElementById('beginner')
       const submitBtn = document.getElementById('submit_button')
 
       // 위치 버튼 이벤트 리스너

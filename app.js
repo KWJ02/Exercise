@@ -264,19 +264,31 @@ app.get('/exerciseRec', (req, res) => {
 })
 
 app.post('/recommend', (req, res) => {
-  let pos = req.body['options-position']
-  let part = req.body['options-parts']
-  let diff = req.body['options-difficulty']
-  console.log(pos)
-  console.log(part)
-  console.log(diff)
-  let sql = 'SELECT name FROM exercises WHERE pos = ? AND part = ?'
+  if(req.session.user_id){
+    let pos = req.body['options-position']
+    let part = req.body['options-parts']
+    let diff = req.body['options-difficulty'] // diff만 영어로, pos와 part는 한글로나옴
 
-  res.render('recommend')
+    let sql = 'SELECT name FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1'
+    conn.query(sql, [pos,part], (err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      let name = rows[0].name
+      res.render('recommend', {recResult : {name, pos, part, diff}})
+    })
+  } else {
+    res.render('../signIn')
+  }
 })
 
 app.get('/recommend', (req, res) => {
-  res.render('recommend')
+  if(req.session.user_id){
+    res.render('recommend')
+  } else {
+    res.render('signIn')
+  }
 })
 
 
