@@ -244,7 +244,7 @@ html(lang='en', data-bs-theme='auto')
                   - else
                     a.dropdown-item(href="/myPage") 마이페이지
                     a#logoutButton.dropdown-item(href="/main") 로그아웃
- .container
+.container
   hr
   h2 게시글 내용
   .post-details
@@ -321,12 +321,15 @@ style.
     padding: 1em;
     background-color: #f9f9f9;
   }
+  .replies {
+    margin-top: 1em; /* 댓글과 답글 사이에 여백 추가 */
+  }
   .reply-card {
     border: 1px solid #ddd;
     margin-bottom: 1em;
     margin-left: 2em;
     padding: 1em;
-    background-color: #f1f1f1;
+    background-color: #e9ecef; /* 다른 배경색으로 변경 */
   }
   .hidden {
     display: none;
@@ -344,6 +347,11 @@ script.
 
 script.
   function likeComment(commentId) {
+    var likeButton = document.getElementById('likeButton-comment-' + commentId);
+    if (likeButton.textContent.includes('취소')) {
+      alert('이미 좋아요를 눌렀습니다.');
+      return;
+    }
     fetch('/comments/' + commentId + '/like', {
       method: 'POST',
       headers: {
@@ -357,7 +365,6 @@ script.
       } else {
         var likeCountElement = document.getElementById('likeCount-comment-' + commentId);
         likeCountElement.textContent = data.likeCount;
-        var likeButton = document.getElementById('likeButton-comment-' + commentId);
         likeButton.textContent = '좋아요 취소';
         likeButton.setAttribute('onclick', 'unlikeComment(' + commentId + ')');
       }
@@ -394,6 +401,11 @@ script.
 
 script.
   function likeReply(replyId) {
+    var likeButton = document.getElementById('likeButton-reply-' + replyId);
+    if (likeButton.textContent.includes('취소')) {
+      alert('이미 좋아요를 눌렀습니다.');
+      return;
+    }
     fetch('/replies/' + replyId + '/like', {
       method: 'POST',
       headers: {
@@ -407,7 +419,6 @@ script.
       } else {
         var likeCountElement = document.getElementById('likeCount-reply-' + replyId);
         likeCountElement.textContent = data.likeCount;
-        var likeButton = document.getElementById('likeButton-reply-' + replyId);
         likeButton.textContent = '좋아요 취소';
         likeButton.setAttribute('onclick', 'unlikeReply(' + replyId + ')');
       }
@@ -445,13 +456,8 @@ script.
 script.
   function showReplyForm(commentId) {
     var form = document.getElementById('replyForm-' + commentId);
-    if (form.classList.contains('hidden')) {
-      form.classList.remove('hidden');
-    } else {
-      form.classList.add('hidden');
-    }
+    form.classList.toggle('hidden');
   }
-
 
 footer.container.py-5
   .row
