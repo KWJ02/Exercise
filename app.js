@@ -25,7 +25,7 @@ const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
   password : '',
-  database : 'ER' // 데이터베이스 이름 유의
+  database : 'inf' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -39,7 +39,7 @@ app.use(session({
     port : 3306,
     user : 'root',
     password : '',
-    database : 'ER'
+    database : 'inf'
   })
 }))
 
@@ -381,7 +381,7 @@ app.get('/community', (req, res) => {
   const perPage = 6;
   let page = parseInt(req.query.page) || 1;
 
-  let sql = 'SELECT name, user_id from users WHERE user_id = ?';
+  let sql = 'SELECT name, user_id FROM users WHERE user_id = ?';
   conn.query(sql, userId, (err, result) => {
     if (err) {
       console.log(err);
@@ -410,7 +410,7 @@ app.get('/community', (req, res) => {
       const totalPosts = postsResult.length;
       const totalPages = Math.ceil(totalPosts / perPage);
 
-      // 페이지 번호가 범위를 벗어나지 않도록 조정
+      // Adjust page number if out of range
       if (page < 1) {
         page = 1;
       } else if (page > totalPages) {
@@ -542,94 +542,86 @@ app.get('/board/:postId', (req, res) => {
 app.get('/viewPost', (req, res) => {
   const postId = req.query.postId;
 
-  // postId를 이용하여 해당 게시글의 내용을 DB에서 조회
   const sqlGetPostContent = 'SELECT * FROM posts WHERE post_id = ?';
   conn.query(sqlGetPostContent, [postId], (err, postResult) => {
     if (err) {
       console.error(err);
-      res.status(500).send('게시글 내용을 불러오는 중 오류가 발생했습니다.');
-    } else {
-      const post = postResult[0];
-      if (!post) {
-        res.status(404).send('게시글을 찾을 수 없습니다.');
-        return;
+      return res.status(500).send('게시글 내용을 불러오는 중 오류가 발생했습니다.');
+    }
+
+    const post = postResult[0];
+    if (!post) {
+      return res.status(404).send('게시글을 찾을 수 없습니다.');
+    }
+
+    const sqlGetComments = `
+      SELECT 
+        c.comment_id,
+        c.content, 
+        c.created_at, 
+        (SELECT COUNT(*) FROM likes WHERE comment_id = c.comment_id) AS like_count, 
+        u.name AS author_name
+      FROM comments c 
+      LEFT JOIN users u ON c.author_id = u.user_id 
+      WHERE c.post_id = ? AND c.parent_comment_id IS NULL`;
+
+    const sqlGetReplies = `
+      SELECT 
+        r.reply_id,
+        r.parent_comment_id,
+        r.content AS reply_content,
+        r.created_at AS reply_created_at,
+        u_reply.name AS reply_author_name,
+        (SELECT COUNT(*) FROM reply_likes WHERE reply_id = r.reply_id) AS like_count
+      FROM replies r
+      LEFT JOIN users u_reply ON r.author_id = u_reply.user_id 
+      WHERE r.post_id = ?`;
+
+    conn.query(sqlGetComments, [postId], (err, commentsResult) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('댓글을 불러오는 중 오류가 발생했습니다.');
       }
 
-      // 댓글 가져오는 쿼리 수정
-      const sqlGetComments = `
-        SELECT 
-          c.comment_id,
-          c.content, 
-          c.created_at, 
-          (SELECT COUNT(*) FROM likes WHERE comment_id = c.comment_id) AS like_count, 
-          u.name AS author_name
-        FROM comments c 
-        LEFT JOIN users u ON c.author_id = u.user_id 
-        WHERE c.post_id = ? AND c.parent_comment_id IS NULL`;
+      const comments = commentsResult;
 
-      // 답글 가져오는 쿼리 수정
-      const sqlGetReplies = `
-        SELECT 
-          r.reply_id,
-          r.parent_comment_id,
-          r.content AS reply_content,
-          r.created_at AS reply_created_at,
-          u_reply.name AS reply_author_name,
-          (SELECT COUNT(*) FROM likes WHERE reply_id = r.reply_id) AS like_count
-        FROM replies r
-        LEFT JOIN users u_reply ON r.author_id = u_reply.user_id 
-        WHERE r.post_id = ?`;
-
-      conn.query(sqlGetComments, [postId], (err, commentsResult) => {
+      conn.query(sqlGetReplies, [postId], (err, repliesResult) => {
         if (err) {
           console.error(err);
-          res.status(500).send('댓글을 불러오는 중 오류가 발생했습니다.');
-          return;
+          return res.status(500).send('답글을 불러오는 중 오류가 발생했습니다.');
         }
 
-        const comments = commentsResult;
+        const repliesByCommentId = repliesResult.reduce((acc, reply) => {
+          acc[reply.parent_comment_id] = acc[reply.parent_comment_id] || [];
+          acc[reply.parent_comment_id].push(reply);
+          return acc;
+        }, {});
 
-        conn.query(sqlGetReplies, [postId], (err, repliesResult) => {
-          if (err) {
-            console.error(err);
-            res.status(500).send('답글을 불러오는 중 오류가 발생했습니다.');
-            return;
-          }
-
-          // 댓글에 답글을 계층 구조로 추가
-          const repliesByCommentId = repliesResult.reduce((acc, reply) => {
-            acc[reply.parent_comment_id] = acc[reply.parent_comment_id] || [];
-            acc[reply.parent_comment_id].push(reply);
-            return acc;
-          }, {});
-
-          comments.forEach(comment => {
-            comment.replies = repliesByCommentId[comment.comment_id] || [];
-          });
-
-          if (req.session.user_id) {
-            // 사용자 인증이 되어 있으면 사용자 정보를 가져와서 함께 전달
-            const sqlGetUserName = 'SELECT name FROM users WHERE user_id = ?';
-            conn.query(sqlGetUserName, [req.session.user_id], (err, userResult) => {
-              if (err) {
-                console.error(err);
-                res.status(500).send('사용자 정보를 불러오는 중 오류가 발생했습니다.');
-              } else {
-                const userName = userResult[0].name;
-                post.view_count++;
-                res.render('viewPost', { post, name: userName, comments });
-              }
-            });
-          } else {
-            // 사용자 인증이 안 되어 있으면 게시글과 댓글만 전달
-            post.view_count++;
-            res.render('viewPost', { post, comments });
-          }
+        comments.forEach(comment => {
+          comment.replies = repliesByCommentId[comment.comment_id] || [];
         });
+
+        if (req.session.user_id) {
+          const sqlGetUserName = 'SELECT name FROM users WHERE user_id = ?';
+          conn.query(sqlGetUserName, [req.session.user_id], (err, userResult) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).send('사용자 정보를 불러오는 중 오류가 발생했습니다.');
+            }
+            const userName = userResult[0].name;
+            post.view_count++;
+            res.render('viewPost', { post, name: userName, comments });
+          });
+        } else {
+          post.view_count++;
+          res.render('viewPost', { post, comments });
+        }
       });
-    }
+    });
   });
 });
+
+
 
 // 댓글 작성
 router.post('/:postId/comment', (req, res) => {
@@ -653,52 +645,7 @@ router.post('/:postId/comment', (req, res) => {
   });
 });
 
-// 답글 작성
-router.post('/:postId/reply', (req, res) => {
-  const { content, parent_comment_id } = req.body;
-  const postId = req.params.postId;
-  const authorId = req.session.user_id || null;
-
-  if (!content) {
-    return res.status(400).send('답글 내용이 제공되지 않았습니다.');
-  }
-
-  // 트랜잭션 시작
-  conn.beginTransaction((err) => {
-    if (err) {
-      console.error('트랜잭션 시작 오류:', err);
-      return res.status(500).send('트랜잭션 시작 실패');
-    }
-
-    const sql = 'INSERT INTO replies (post_id, content, author_id, parent_comment_id) VALUES (?, ?, ?, ?)';
-    const values = [postId, content, authorId, parent_comment_id];
-
-    conn.query(sql, values, (err, result) => {
-      if (err) {
-        return conn.rollback(() => {
-          console.error('답글 작성 오류:', err);
-          return res.status(500).send('답글 작성 실패');
-        });
-      }
-
-      conn.commit((err) => {
-        if (err) {
-          return conn.rollback(() => {
-            console.error('트랜잭션 커밋 오류:', err);
-            return res.status(500).send('트랜잭션 커밋 실패');
-          });
-        }
-
-        console.log('답글이 성공적으로 작성되었습니다.');
-        res.redirect(`/viewPost?postId=${postId}`);
-      });
-    });
-  });
-});
-
-module.exports = router;
-
-// 댓글 좋아요 라우터 정의
+// 댓글 좋아요
 router.post('/:commentId/like', (req, res) => {
   const commentId = req.params.commentId;
   const userId = req.session.user_id;
@@ -707,7 +654,6 @@ router.post('/:commentId/like', (req, res) => {
     return res.status(401).json({ error: '로그인이 필요합니다.' });
   }
 
-  // 사용자가 이미 좋아요를 눌렀는지 확인하는 SQL 쿼리
   const sqlCheckLike = 'SELECT COUNT(*) AS likeCount FROM likes WHERE comment_id = ? AND user_id = ?';
   conn.query(sqlCheckLike, [commentId, userId], (err, result) => {
     if (err) {
@@ -721,7 +667,6 @@ router.post('/:commentId/like', (req, res) => {
       return res.status(400).json({ error: '이미 좋아요를 눌렀습니다.' });
     }
 
-    // 좋아요 정보를 데이터베이스에 삽입하는 SQL 쿼리
     const sqlInsertLike = 'INSERT INTO likes (comment_id, user_id) VALUES (?, ?)';
     conn.query(sqlInsertLike, [commentId, userId], (err) => {
       if (err) {
@@ -729,7 +674,6 @@ router.post('/:commentId/like', (req, res) => {
         return res.status(500).json({ error: '댓글 좋아요 처리 실패' });
       }
 
-      // 증가된 좋아요 수를 확인하는 SQL 쿼리
       const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM likes WHERE comment_id = ?';
       conn.query(sqlGetLikeCount, [commentId], (err, result) => {
         if (err) {
@@ -744,7 +688,7 @@ router.post('/:commentId/like', (req, res) => {
   });
 });
 
-// 댓글 좋아요 취소 라우터 정의
+// 댓글 좋아요 취소
 router.post('/:commentId/unlike', (req, res) => {
   const commentId = req.params.commentId;
   const userId = req.session.user_id;
@@ -753,7 +697,6 @@ router.post('/:commentId/unlike', (req, res) => {
     return res.status(401).json({ error: '로그인이 필요합니다.' });
   }
 
-  // 사용자의 좋아요 정보를 삭제하는 SQL 쿼리
   const sqlDeleteLike = 'DELETE FROM likes WHERE comment_id = ? AND user_id = ?';
   conn.query(sqlDeleteLike, [commentId, userId], (err) => {
     if (err) {
@@ -761,7 +704,6 @@ router.post('/:commentId/unlike', (req, res) => {
       return res.status(500).json({ error: '댓글 좋아요 취소 실패' });
     }
 
-    // 감소된 좋아요 수를 확인하는 SQL 쿼리
     const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM likes WHERE comment_id = ?';
     conn.query(sqlGetLikeCount, [commentId], (err, result) => {
       if (err) {
@@ -775,7 +717,61 @@ router.post('/:commentId/unlike', (req, res) => {
   });
 });
 
-// 답글 좋아요 라우터 정의
+module.exports = router;
+
+// 댓글 좋아요 취소 라우터 정의
+router.post('/:commentId/unlike', (req, res) => {
+  const commentId = req.params.commentId;
+  const userId = req.session.user_id;
+
+  if (!userId) {
+    return res.status(401).json({ error: '로그인이 필요합니다.' });
+  }
+
+  const sqlDeleteLike = 'DELETE FROM likes WHERE comment_id = ? AND user_id = ?';
+  conn.query(sqlDeleteLike, [commentId, userId], (err) => {
+    if (err) {
+      console.error('댓글 좋아요 취소 중 오류 발생:', err);
+      return res.status(500).json({ error: '댓글 좋아요 취소 실패' });
+    }
+
+    const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM likes WHERE comment_id = ?';
+    conn.query(sqlGetLikeCount, [commentId], (err, result) => {
+      if (err) {
+        console.error('좋아요 수 조회 중 오류 발생:', err);
+        return res.status(500).json({ error: '좋아요 수 조회 실패' });
+      }
+
+      const updatedLikeCount = result[0].likeCount;
+      res.json({ likeCount: updatedLikeCount });
+    });
+  });
+});
+
+
+// 답글 작성
+router.post('/:postId/reply', (req, res) => {
+  const { content, parent_comment_id } = req.body;
+  const postId = req.params.postId;
+  const authorId = req.session.user_id;
+
+  if (!content) {
+    return res.status(400).send('답글 내용이 제공되지 않았습니다.');
+  }
+
+  const sql = 'INSERT INTO replies (post_id, content, author_id, parent_comment_id) VALUES (?, ?, ?, ?)';
+  const values = [postId, content, authorId, parent_comment_id];
+
+  conn.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('답글 작성 오류:', err);
+      return res.status(500).send('답글 작성 실패');
+    }
+    res.redirect(`/viewPost?postId=${postId}`);
+  });
+});
+
+// 답글 좋아요
 router.post('/:replyId/like', (req, res) => {
   const replyId = req.params.replyId;
   const userId = req.session.user_id;
@@ -784,7 +780,6 @@ router.post('/:replyId/like', (req, res) => {
     return res.status(401).json({ error: '로그인이 필요합니다.' });
   }
 
-  // 사용자가 이미 좋아요를 눌렀는지 확인하는 SQL 쿼리
   const sqlCheckLike = 'SELECT COUNT(*) AS likeCount FROM reply_likes WHERE reply_id = ? AND user_id = ?';
   conn.query(sqlCheckLike, [replyId, userId], (err, result) => {
     if (err) {
@@ -798,7 +793,6 @@ router.post('/:replyId/like', (req, res) => {
       return res.status(400).json({ error: '이미 좋아요를 눌렀습니다.' });
     }
 
-    // 좋아요 정보를 데이터베이스에 삽입하는 SQL 쿼리
     const sqlInsertLike = 'INSERT INTO reply_likes (reply_id, user_id) VALUES (?, ?)';
     conn.query(sqlInsertLike, [replyId, userId], (err) => {
       if (err) {
@@ -806,7 +800,6 @@ router.post('/:replyId/like', (req, res) => {
         return res.status(500).json({ error: '답글 좋아요 처리 실패' });
       }
 
-      // 증가된 좋아요 수를 확인하는 SQL 쿼리
       const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM reply_likes WHERE reply_id = ?';
       conn.query(sqlGetLikeCount, [replyId], (err, result) => {
         if (err) {
@@ -821,7 +814,7 @@ router.post('/:replyId/like', (req, res) => {
   });
 });
 
-// 답글 좋아요 취소 라우터 정의
+// 답글 좋아요 취소
 router.post('/:replyId/unlike', (req, res) => {
   const replyId = req.params.replyId;
   const userId = req.session.user_id;
@@ -830,7 +823,6 @@ router.post('/:replyId/unlike', (req, res) => {
     return res.status(401).json({ error: '로그인이 필요합니다.' });
   }
 
-  // 사용자의 좋아요 정보를 삭제하는 SQL 쿼리
   const sqlDeleteLike = 'DELETE FROM reply_likes WHERE reply_id = ? AND user_id = ?';
   conn.query(sqlDeleteLike, [replyId, userId], (err) => {
     if (err) {
@@ -838,7 +830,6 @@ router.post('/:replyId/unlike', (req, res) => {
       return res.status(500).json({ error: '답글 좋아요 취소 실패' });
     }
 
-    // 감소된 좋아요 수를 확인하는 SQL 쿼리
     const sqlGetLikeCount = 'SELECT COUNT(*) AS likeCount FROM reply_likes WHERE reply_id = ?';
     conn.query(sqlGetLikeCount, [replyId], (err, result) => {
       if (err) {
@@ -860,26 +851,35 @@ app.use('/comments', router);
 router.post('/:postId/reply', (req, res) => {
   const { content, parent_comment_id } = req.body;
   const postId = req.params.postId;
-  const authorId = req.session.user_id || null; // If user is not authenticated, set to null
+  const authorId = req.session.user_id;
 
   if (!content) {
-    res.status(400).send('Reply content not provided');
-    return;
+    return res.status(400).send('답글 내용이 제공되지 않았습니다.');
   }
+
+  // 세션에 마지막 답글 정보를 저장
+  const lastReplyTime = req.session.lastReplyTime || 0;
+  const now = Date.now();
+
+  // 마지막 답글 이후 일정 시간(예: 5초)이 지나지 않았으면 중복 요청으로 간주
+  if (now - lastReplyTime < 5000) {
+    return res.status(429).send('너무 많은 요청입니다. 잠시 후 다시 시도해주세요.');
+  }
+
+  req.session.lastReplyTime = now;
 
   const sql = 'INSERT INTO replies (post_id, content, author_id, parent_comment_id) VALUES (?, ?, ?, ?)';
   const values = [postId, content, authorId, parent_comment_id];
 
   conn.query(sql, values, (err, result) => {
     if (err) {
-      console.error('Error creating reply:', err);
-      res.status(500).send('Reply creation failed');
-      return;
+      console.error('답글 작성 오류:', err);
+      return res.status(500).send('답글 작성 실패');
     }
-    console.log('Reply successfully created.');
     res.redirect(`/viewPost?postId=${postId}`);
   });
 });
+
 
 
 

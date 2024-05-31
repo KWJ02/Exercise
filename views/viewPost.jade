@@ -256,9 +256,7 @@ html(lang='en', data-bs-theme='auto')
       tr
         th 작성일
         td #{post.created_at}
-      tr
-        th 조회수
-        td #{post.view_count}
+      
 
   table#postContent.table.table-striped
     tr
@@ -399,6 +397,7 @@ script.
     });
   }
 
+// 좋아요 기능
 script.
   function likeReply(replyId) {
     var likeButton = document.getElementById('likeButton-reply-' + replyId);
@@ -406,7 +405,7 @@ script.
       alert('이미 좋아요를 눌렀습니다.');
       return;
     }
-    fetch('/replies/' + replyId + '/like', {
+    fetch('/comments/replies/' + replyId + '/like', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -430,7 +429,7 @@ script.
 
 script.
   function unlikeReply(replyId) {
-    fetch('/replies/' + replyId + '/unlike', {
+    fetch('/comments/replies/' + replyId + '/unlike', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -452,6 +451,7 @@ script.
       console.error('Error unliking reply:', error);
     });
   }
+
 
 script.
   function showReplyForm(commentId) {
