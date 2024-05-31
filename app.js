@@ -211,8 +211,14 @@ app.post('/bmiRecord', (req, res) => {
         res.status(500).send('Internal Server Error');
       }
       if(result.length > 0) {
-        let sql2 = 'INSERT INTO userinput (age, height, weight, bmi) VALUES (?,?,?,?)';
-        conn.query(sql2, [userInput.age, userInput.height, userInput.weight, userInput.bmi], (err, rows) => {
+        const date = new Date()
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0'); 
+        timeStamp = `${year}-${month}-${day}`;
+
+        let sql2 = 'INSERT INTO userinput (user_id, age, height, weight, bmi, date) VALUES (?,?,?,?,?,?)';
+        conn.query(sql2, [id, userInput.age, userInput.height, userInput.weight, userInput.bmi, timeStamp], (err, rows) => {
           if(err){
             console.log(err);
             res.status(500).send('Internal Server Error');
