@@ -184,15 +184,6 @@ app.post('/bmiCalc', (req, res) => {
   let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
   let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1)
 
-  res.cookie('gender', gender)
-  res.cookie('age', age)
-  res.cookie('height', height)
-  res.cookie('weight', weight)
-  res.cookie('bmi', bmi)
-  res.cookie('normalMinimumWeight', normalMinimumWeight)
-  res.cookie('normalMaximumWeight', normalMaximumWeight)
-  
-
   if(req.session.user_id){
     let sql = 'SELECT name from users WHERE user_id = ?'
     conn.query(sql, req.session.user_id, (err, result) => {
@@ -208,32 +199,31 @@ app.post('/bmiCalc', (req, res) => {
   }
 })
 
-// ********************************** bmi기록 / insert문 중복 수행 오류
+// ********************************** bmi기록
 app.post('/bmiRecord', (req, res) => {
-  const userInput = req.cookies
+  const userInput = req.cookies;
   if(req.session.user_id){
-    let id = req.session.user_id
-    let sql = 'SELECT name from users WHERE user_id = ?'
+    let id = req.session.user_id;
+    let sql = 'SELECT name from users WHERE user_id = ?';
     conn.query(sql, id, (err, result) => {
       if(err){
-        console.log(err)
-        res.status(500).send('Internal Server Error')
+        console.log(err);
+        res.status(500).send('Internal Server Error');
       }
       if(result.length > 0) {
-        let sql2 = 'INSERT INTO userinput (age, height, weight, bmi) VALUES (?,?,?,?)'
+        let sql2 = 'INSERT INTO userinput (age, height, weight, bmi) VALUES (?,?,?,?)';
         conn.query(sql2, [userInput.age, userInput.height, userInput.weight, userInput.bmi], (err, rows) => {
           if(err){
-            console.log(err)
-            res.status(500).send('Internal Server Error')
+            console.log(err);
+            res.status(500).send('Internal Server Error');
           } else {
-            res.render('bmiRecord', {alertMessage : '대시보드에 저장되었습니다.'})
+            res.render('bmiRecord', {alertMessage : '대시보드에 저장되었습니다.'});
           }
-        })
+        });
       }
-    })
+    });
   } else {
-    console.log('10')
-    res.redirect('../signIn')
+    res.redirect('../signIn');
   }
 });
 
@@ -299,7 +289,7 @@ app.get('/exerciseLib', (req, res) => {
 
 app.get('/myPage/exerciseManage', (req, res) => {
   let sql = 'SELECT * FROM exercise'
-  if(req.session.user_id){
+  if(req.session.user_id === 'admin'){
     conn.query(sql,(err, rows) => {
       if(err){
         console.log(err)
@@ -350,6 +340,14 @@ app.post('/myPage/deleteExercise', (req, res) => {
     }
   });
 });
+
+app.get('/myPage/userManage', (req, res) => {
+  if(req.session.user_id === 'admin'){
+    res.render('userManage')
+  } else {
+    res.render('signIn')
+  }
+})
 
 
 app.get('/community', (req, res) => {

@@ -186,13 +186,7 @@ html(lang='en', data-bs-theme='auto')
                   a.nav-link.d-flex.align-items-center.gap-2(href='/myPage/recExercisList')
                     svg.bi
                       use(xlink:href='#file-earmark-text')
-                    | 추천받은 운동 목록
-                li.nav-item
-                  form(action='/logout' method='post')
-                    button.nav-link.d-flex.align-items-center.gap-2(type='submit')
-                      svg.bi
-                        use(xlink:href='#door-closed')
-                      | 로그아웃
+                    | 추천받은 운동 목록  
               hr.my-3
               ul.nav.flex-column
                 li.nav-item
@@ -201,22 +195,16 @@ html(lang='en', data-bs-theme='auto')
                       use(xlink:href='#file-earmark')
                     | 운동관리
                 li.nav-item
-                  a.nav-link.d-flex.align-items-center.gap-2(href='/myPage/usersManage')
+                  a.nav-link.d-flex.align-items-center.gap-2(href='/myPage/userManage')
                     svg.bi
                       use(xlink:href='#people')
                     | 회원관리
-              hr.my-3
-              ul.nav.flex-column.mb-auto
                 li.nav-item
-                  a.nav-link.d-flex.align-items-center.gap-2(href='#')
-                    svg.bi
-                      use(xlink:href='#gear-wide-connected')
-                    | 회원정보 변경
-                li.nav-item
-                  a.nav-link.d-flex.align-items-center.gap-2(href='#')
-                    svg.bi
-                      use(xlink:href='#trash')
-                    | 회원탈퇴
+                  form(action='/logout' method='post')
+                    button.nav-link.d-flex.align-items-center.gap-2(type='submit')
+                      svg.bi
+                        use(xlink:href='#door-closed')
+                      | 로그아웃
               
         main.col-md-9.ms-sm-auto.col-lg-10.px-md-4
           .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom

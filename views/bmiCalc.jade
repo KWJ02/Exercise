@@ -215,8 +215,8 @@ html(lang="en")
                 span.value(style="width: 26%; text-align: center;") 40
 
               .form_container(style="margin-top : 100px;")  
-              form#bmiRecordForm(action="/bmiRecord" method="post" style="display: inline; align-items: center; margin-right : 10px;")
-                input.btn.btn-dark(type="submit" value="BMI 기록하고 운동 추천받기" style="width: 100%;" onclick="recordBMI()" id="recordButton")
+              form#bmiRecordForm(action="/bmiRecord" method="post" style="display: inline; align-items: center; margin-right : 10px;" onsubmit="return recordBMI()")
+                input.btn.btn-dark(type="submit" value="BMI 기록하고 운동 추천받기" style="width: 100%;" id="recordButton")
               
     else
       .container(style="margin-top : 80px;")
@@ -336,7 +336,10 @@ html(lang="en")
     });
   
   script.
-    function recordBMI() {
+    function recordBMI(event) {
+      // 기본 폼 제출 동작을 막음
+      event.preventDefault();
+
       fetch('/checkLogin')
         .then(response => {
           if (!response.ok) {
@@ -354,6 +357,9 @@ html(lang="en")
         .catch(error => {
           console.error('오류 발생:', error);
         });
+
+      // 폼 제출을 막기 위해 false 반환
+      return false;
     }
   script.
       document.getElementById("logoutButton").addEventListener("click", function(event) {
