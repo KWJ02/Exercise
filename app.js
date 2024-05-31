@@ -7,6 +7,20 @@ const moment = require('moment');
 const bodyParser = require('body-parser');
 const MySQLStore = require('express-mysql-session')(session)
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, 'uploads')); // 파일이 저장될 디렉토리 경로
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`); // 파일 이름 설정
+  }
+});
+
+const upload = multer({ storage: storage });
+
 const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
@@ -51,7 +65,7 @@ app.get('/test1', (req, res) => {
   res.sendFile(__dirname + '/public/index.html')
 })
 app.get('/test2', (req, res) => {
-  res.sendFile(__dirname + '/public/test2.html')
+  res.sendFile(__dirname + '/public/test.html')
 })
 
 // ********************************** 홈페이지
@@ -265,14 +279,16 @@ app.post('/recommend', (req, res) => {
     let part = req.body['options-parts']
     let diff = req.body['options-difficulty'] // diff만 영어로, pos와 part는 한글로나옴
 
-    let sql = 'SELECT name FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1'
+    let sql = 'SELECT name, img FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1'
     conn.query(sql, [pos,part], (err, rows) => {
       if(err){
         console.log(err)
         res.send('Internal Server Error')
       }
+      const imgPath = `uploads/${rows[0].img}`
+      console.log(imgPath)
       let name = rows[0].name
-      res.render('recommend', {recResult : {name, pos, part, diff}})
+      res.render('recommend', {recResult : {name, pos, part, diff, imgPath}})
     })
   } else {
     res.render('../signIn')
@@ -308,13 +324,13 @@ app.get('/myPage/exerciseManage', (req, res) => {
   }
 })
 
-app.post('/myPage/exerciseManage', (req, res) => {
-  let pos = req.body.pos
-  let part = req.body.part
-  let name = req.body.name
+app.post('/myPage/exerciseManage', upload.single('photo'), (req, res) => {
+  const {pos, part, name} = req.body
+  const img = req.file
+  console.log(img)
 
-  let sql = 'INSERT INTO exercise (name, pos, part) VALUES (?,?,?)'
-  conn.query(sql, [name, pos, part], (err, rows) => {
+  let sql = 'INSERT INTO exercise (name, pos, part, img) VALUES (?,?,?,?)'
+  conn.query(sql, [name, pos, part, img.filename], (err, rows) => {
     if(err){
       console.log(err)
       res.send('Internal Server Error')
@@ -332,7 +348,6 @@ app.post('/myPage/exerciseManage', (req, res) => {
 
 app.post('/myPage/deleteExercise', (req, res) => {
   const id = req.body.id;
-  console.log(`Received delete request for ID: ${id}`);
   const query = 'DELETE FROM exercise WHERE id = ?';
   conn.query(query, [id], (err, result) => {
     if (err) {
