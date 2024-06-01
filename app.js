@@ -288,7 +288,6 @@ app.post('/recommend', (req, res) => {
         res.send('Internal Server Error')
       }
       const imgPath = `public/${rows[0].img}`
-      console.log(imgPath)
       let name = rows[0].name
       res.render('recommend', {recResult : {name, pos, part, diff, imgPath}})
     })
