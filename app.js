@@ -279,7 +279,7 @@ app.post('/recommend', (req, res) => {
   if(req.session.user_id){
     let pos = req.body['options-position']
     let part = req.body['options-parts']
-    let diff = req.body['options-difficulty'] // diff만 영어로, pos와 part는 한글로나옴
+    let diff = req.body['options-difficulty']
 
     let sql = 'SELECT name, img FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1'
     conn.query(sql, [pos,part], (err, rows) => {
@@ -313,7 +313,7 @@ app.get('/myPage/exerciseManage', (req, res) => {
       res.render('exerciseManage', {rows : rows})
     })
   } else {
-    res.send('접근 권한이 존재하지 않습니다.')
+    res.send('접근 권한이 없습니다.')
   }
 })
 
@@ -366,7 +366,7 @@ app.get('/myPage/userManage', (req, res) => {
       res.render('userManage', {rows : rows})
     })
   } else {
-    res.send('접근 권한이 존재하지 않습니다.')
+    res.send('접근 권한이 없습니다.')
   }
 })
 
@@ -880,17 +880,8 @@ router.post('/:postId/reply', (req, res) => {
   });
 });
 
-
-
-
 app.get('/myPage', (req, res) => {
   if(req.session.user_id){
-    let date = new Date()
-    let month = date.getMonth() + 1
-    let sevenDaysAgo = new Date(date);
-    sevenDaysAgo.setDate(date.getDate() - 7)
-    let dayOfSevenDaysAgo = sevenDaysAgo.getDate();
-
     const userId = req.session.user_id
     sql = 'SELECT name FROM users WHERE user_id = ?'
     conn.query(sql, userId, (err, result) => {
@@ -898,13 +889,64 @@ app.get('/myPage', (req, res) => {
         res.send('Internal Server Error')
       } else {
         if(req.session.user_id === "admin"){
-          res.render('adminPage', {name : result[0].name, month : month, sevenDaysAgo : dayOfSevenDaysAgo})
+          res.render('adminPage', {name : result[0].name})
         } else {
-          res.render('myPage', {name : result[0].name, month : month, sevenDaysAgo : dayOfSevenDaysAgo})
+          const alertMessage = req.session.message // 이 부분 수정
+          delete req.session.message; // 사용한 후 메시지 삭제
+          if(alertMessage){
+            res.render('myPage', {name : result[0].name, alertMessage : alertMessage})
+          } else {
+            res.render('myPage', {name : result[0].name}) // 메시지가 없는 경우
+          }
         }
       }
     })
   } else {
     res.redirect('/signIn')
+  }
+})
+
+app.get('/myPage/alterUserInform', (req, res) => {
+  if(req.session.user_id) {
+    res.render('alterInfo')
+  } else {
+    res.send('접근 권한이 없습니다.')
+  }
+})
+
+app.post('/myPage/alterUserInform/alter', (req, res) => {
+  if(req.session.user_id) {
+    const user_id = req.session.user_id
+    let sql = 'SELECT user_pw, email, name FROM users WHERE user_id=?'
+    conn.query(sql, user_id, (err, row) => {
+      if(err) {
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      res.render('alterInfo', {email : row[0].email, name : row[0].name})
+    })
+  } else {
+    res.send('접근 권한이 없습니다.')
+  }
+})
+
+app.post('/myPage/alterUserInform/alterComplete', (req, res) => {
+  if(req.session.user_id) {
+    const u_id = req.session.user_id
+    const pw = req.body.password
+    const email = req.body.email
+    const name = req.body.name
+
+    let sql = 'UPDATE users SET user_pw=?, email=?, name=? WHERE user_id=?'
+    conn.query(sql, [pw, email, name, u_id], (err, row) => {
+      if(err) {
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      req.session.message = "성공적으로 변경하였습니다!"
+      res.redirect('/myPage')
+    })
+  } else {
+    res.send('접근 권한이 없습니다.')
   }
 })

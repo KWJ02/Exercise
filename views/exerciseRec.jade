@@ -116,23 +116,23 @@ html(lang="en")
                 input(type='radio', class='btn-check', name='options-parts', id='core', value='코어', autocomplete='off' disabled)
                 label(for='core', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 코어
 
-                input(type='radio', class='btn-check', name='options-parts', id='lowerBody', value='하체', autocomplete='off' disabled)
-                label(for='lowerBody', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하체
+                input(type='radio', class='btn-check', name='options-parts', id='legs', value='하체', autocomplete='off' disabled)
+                label(for='legs', class='btn btn-outline-dark' style="margin-right : 10px; width : 20%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하체
 
               p(style="text-align : left;") 난이도를 선택하세요.
               hr
               .btn-group-toggle.d-flex.justify-content-center(style="margin-bottom : 50px;")
                 input(type='radio', class='btn-check', name='options-difficulty', id='intense', value='intense', autocomplete='off' disabled)
-                label(for='intense', class='btn btn-outline-danger' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 상
+                label(for='intense', class='btn btn-outline-danger' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 12rep / 5set
 
                 input(type='radio', class='btn-check', name='options-difficulty', id='intermediate', value='intermediate', autocomplete='off' disabled)
-                label(for='intermediate', class='btn btn-outline-info' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 중
+                label(for='intermediate', class='btn btn-outline-info' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 10rep / 4set
                 
                 input(type='radio', class='btn-check', name='options-difficulty', id='beginner', value='beginner', autocomplete='off' disabled)
-                label(for='beginner', class='btn btn-outline-success' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 하
+                label(for='beginner', class='btn btn-outline-success' style="margin-right : 15px; width : 30%; height : 8vh; display: flex; align-items: center; justify-content: center;") 8rep / 3set
 
               .form_container
-                input.btn.btn-primary(type="submit" value="제출" style="width: 100%; color : #fff; margin-top : 50px" id="submit_button" disabled)
+                input.btn.btn-primary(type="submit" value="제출" style="width: 100%; color : #fff;" id="submit_button" disabled)
 
 
           
@@ -223,7 +223,7 @@ html(lang="en")
       const partBtn2 = document.getElementById('chest')
       const partBtn3 = document.getElementById('back')
       const partBtn4 = document.getElementById('core')
-      const partBtn5 = document.getElementById('lowerBody')
+      const partBtn5 = document.getElementById('legs')
       const diffBtn1 = document.getElementById('intense')
       const diffBtn2 = document.getElementById('intermediate')
       const diffBtn3 = document.getElementById('beginner')

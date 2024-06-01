@@ -106,7 +106,13 @@ html(lang='en', data-bs-theme='auto')
           div
             img(src=recResult.imgPath class="mx-auto" style="width : 700px; height : 500px")
           p.fs-5.text-body-secondary
-            | Quickly build an effective pricing table for your potential customers with this Bootstrap example. It’s built with default Bootstrap components and utilities with little customization.
+            if(recResult.diff === "intense")
+              h2 Complete 5 sets of 12 reps each.
+            if(recResult.diff === "intermediate")
+              h2 Complete 4 sets of 10 reps each.
+            if(recResult.diff === "beginner")
+              h2 Complete 3 sets of 8 reps each.
+            
 
       main
         .row.row-cols-1.row-cols-md-3.mb-3.text-center
@@ -142,6 +148,11 @@ html(lang='en', data-bs-theme='auto')
                   li 15 GB of storage
                   li Phone and email support
                   li Help center access
+        form(action='/exerciseComplete', method='post')
+          .row
+            .col.text-center
+              button.btn.btn-primary.btn-lg(type='submit' style="width : 80%; margin-top : 100px;") 운동 완료
+
       footer.pt-4.my-md-5.pt-md-5.border-top
         .row
           .col-12.col-md
