@@ -12,7 +12,7 @@ const path = require('path');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, 'uploads')); // 파일이 저장될 디렉토리 경로
+    cb(null, path.join(__dirname, 'upload')); // 파일이 저장될 디렉토리 경로
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`); // 파일 이름 설정
@@ -25,7 +25,7 @@ const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
   password : '',
-  database : 'inf' // 데이터베이스 이름 유의
+  database : 'ER' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -39,14 +39,16 @@ app.use(session({
     port : 3306,
     user : 'root',
     password : '',
-    database : 'inf'
+    database : 'ER'
   })
 }))
 
 app.use(express.static(__dirname + "/public"));
+app.use('/public', express.static("upload"));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
 
 app.set('view engine', 'jade')
 app.set('views', 'views')
@@ -285,21 +287,13 @@ app.post('/recommend', (req, res) => {
         console.log(err)
         res.send('Internal Server Error')
       }
-      const imgPath = `uploads/${rows[0].img}`
+      const imgPath = `public/${rows[0].img}`
       console.log(imgPath)
       let name = rows[0].name
       res.render('recommend', {recResult : {name, pos, part, diff, imgPath}})
     })
   } else {
     res.render('../signIn')
-  }
-})
-
-app.get('/recommend', (req, res) => {
-  if(req.session.user_id){
-    res.render('recommend')
-  } else {
-    res.render('signIn')
   }
 })
 
