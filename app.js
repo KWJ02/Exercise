@@ -313,7 +313,7 @@ app.get('/myPage/exerciseManage', (req, res) => {
       res.render('exerciseManage', {rows : rows})
     })
   } else {
-    res.redirect('/signIn')
+    res.send('접근 권한이 존재하지 않습니다.')
   }
 })
 
@@ -357,9 +357,16 @@ app.post('/myPage/deleteExercise', (req, res) => {
 
 app.get('/myPage/userManage', (req, res) => {
   if(req.session.user_id === 'admin'){
-    res.render('userManage')
+    let sql = 'SELECT * FROM users'
+    conn.query(sql,(err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      res.render('userManage', {rows : rows})
+    })
   } else {
-    res.render('signIn')
+    res.send('접근 권한이 존재하지 않습니다.')
   }
 })
 
