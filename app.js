@@ -79,7 +79,14 @@ app.get('/main', (req, res) => {
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('main', {name : result[0].name, id : result[0].user_id})
+        const alertMessage = req.session.message // 이 부분 수정
+        delete req.session.message; // 사용한 후 메시지 삭제
+        if(alertMessage){
+          res.render('main', {name : result[0].name, id : result[0].user_id, alertMessage : alertMessage})
+        } else {
+          res.render('main', {name : result[0].name, id : result[0].user_id})
+        }
+        
       }
     })
   } else {
@@ -154,7 +161,8 @@ app.post('/signUp', (req, res) => {
     if(err){
       console.log(err)
       res.status(500).send('Interner Server Error')
-    } 
+    }
+    console.log(result)
 
     if(result.length == 0){
       let sql = 'INSERT INTO users (user_id, user_pw, email, name) VALUES (?,?,?,?)'
@@ -950,3 +958,50 @@ app.post('/myPage/alterUserInform/alterComplete', (req, res) => {
     res.send('접근 권한이 없습니다.')
   }
 })
+
+app.get('/myPage/secession', (req, res) => {
+  if(req.session.user_id){
+    res.render('secession')
+  } else{
+    res.send('접근 권한이 없습니다.')
+  }
+})
+
+app.post('/myPage/secession/confirm', (req, res) => {
+  if(req.session.user_id) {
+    const user_id = req.session.user_id
+    let sql = 'SELECT user_pw, name FROM users WHERE user_id=?'
+    conn.query(sql, user_id, (err, row) => {
+      if(err) {
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      res.render('secession', {name : row[0].name, pw : row[0].user_pw})
+    })
+  } else {
+    res.send('접근 권한이 없습니다.')
+  }
+})
+
+app.post('/myPage/secession/delete', (req, res) => {
+  if(req.session.user_id !== 'admin') {
+    if(req.session.user_id){
+      const user_id = req.session.user_id;
+      let sql = 'DELETE FROM users WHERE user_id=?';
+      conn.query(sql, user_id, (err, rows) => {
+        if(err){
+          console.log(err);
+          res.send('Internal Server Error');
+        } else {
+          req.session.message = "탈퇴가 완료되었습니다.";
+          delete req.session.user_id;
+          res.redirect('/main');
+        }
+      });
+    } else {
+      res.send('접근 권한이 없습니다.');
+    }
+  } else {
+    res.send('관리자 계정의 탈퇴는 불가능합니다.');
+  }
+});
