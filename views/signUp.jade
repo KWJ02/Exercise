@@ -56,7 +56,7 @@ html(lang="en")
       .row.justify-content-center.form-container
         .col-md-6
           h2.text-center.mb-4 회원가입
-          form(action="/signUp" method="post")
+          form(action="/signUpRe" method="post")
             .form-group
               label(for="name") 이름
               input.form-control(type="text" id="name" name="user_name" placeholder="이름을 입력하세요." value= inform.name)
@@ -64,8 +64,8 @@ html(lang="en")
               label(for="email") 이메일
               input.form-control(type="email" id="email" name="user_email" placeholder="이메일을 입력하세요." value= inform.email)
             .form-group
-              label(for="id") 아이디
-              input.form-control.is-invalid(type="text" id="validationServer03" aria-describedby="validationServer03Feedback" required)
+              label(for="user_id") 아이디
+              input.form-control.is-invalid(type="text" id="user_id" name="user_id" required)
               div#validationServer03Feedback.invalid-feedback
                 | 다른 아이디를 입력하세요.
             .form-group
@@ -78,26 +78,26 @@ html(lang="en")
             button.btn.btn-primary.btn-block(type="submit" id="submit_button" disabled) 가입하기
 
     script.
-      // 비밀번호 확인
-      var password = document.getElementById("password");
-      var confirmPassword = document.getElementById("confirmPassword");
+      const inputElement = document.getElementById("user_id");
+      const feedbackElement = document.getElementById("validationServer03Feedback");
 
-      function validatePassword() {
-        if (password.value != confirmPassword.value) {
-          confirmPassword.setCustomValidity("비밀번호가 일치하지 않습니다.");
+      inputElement.addEventListener("input", function() {
+        if (this.value) {
+          inputElement.classList.remove("is-invalid");
+          inputElement.classList.add("is-valid");
+          feedbackElement.style.display = "none"; // 메세지가 사라지게 하려면 추가
         } else {
-          confirmPassword.setCustomValidity('');
+          inputElement.classList.remove("is-valid");
+          inputElement.classList.add("is-invalid");
+          feedbackElement.style.display = "block"; // 메세지가 나타나게 하려면 추가
         }
-      }
-
-      password.onchange = validatePassword;
-      confirmPassword.onkeyup = validatePassword;
+      });
 
     script.
       function submitOn() {
         const name = document.getElementById("name")
         const email = document.getElementById("email")
-        const id = document.getElementById("id")
+        const id = document.getElementById("user_id")
         const pw = document.getElementById("password")
         const cpw = document.getElementById("confirmPassword")
         const btn = document.getElementById("submit_button")
