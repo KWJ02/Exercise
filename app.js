@@ -231,6 +231,11 @@ app.post('/bmiCalc', (req, res) => {
   let normalMinimumWeight = ((height * height) / 10000 * 18.55).toFixed(1)
   let normalMaximumWeight = ((height * height) / 10000 * 24.95).toFixed(1)
 
+  res.cookie('age', age, { maxAge: 900000, httpOnly: true })
+  res.cookie('height', height, { maxAge: 900000, httpOnly: true })
+  res.cookie('weight', weight, { maxAge: 900000, httpOnly: true })
+  res.cookie('bmi', bmi, { maxAge: 900000, httpOnly: true })
+
   if(req.session.user_id){
     let sql = 'SELECT name from users WHERE user_id = ?'
     conn.query(sql, req.session.user_id, (err, result) => {
@@ -249,6 +254,7 @@ app.post('/bmiCalc', (req, res) => {
 // ********************************** bmi기록
 app.post('/bmiRecord', (req, res) => {
   const userInput = req.cookies;
+  console.log(userInput)
   if(req.session.user_id){
     let id = req.session.user_id;
     let sql = 'SELECT name from users WHERE user_id = ?';
