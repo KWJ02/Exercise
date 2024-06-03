@@ -9,6 +9,15 @@ const MySQLStore = require('express-mysql-session')(session)
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const youtubedl = require('youtube-dl-exec');
+const videoUrl = 'https://youtu.be/-_DUjHxgmWk'
+const videoPath = 'public/videos/video.mp4';
+
+youtubedl(videoUrl, { output: videoPath }).then(output => {
+  console.log('비디오 다운로드 완료');
+}).catch(err => {
+  console.error('비디오 다운로드 중 오류:', err);
+});
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
