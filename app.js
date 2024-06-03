@@ -331,24 +331,19 @@ app.post('/recommend', (req, res) => {
     conn.query(sql, [pos, part], (err, rows) => {
       if (err) {
         console.log(err);
-        res.send('Internal Server Error');
+        return res.status(500).send('Internal Server Error');
       }
-<<<<<<< Updated upstream
-      const imgPath = `public/${rows[0].img}`
-      let name = rows[0].name
-      res.cookie('pos', pos, { maxAge: 900000, httpOnly: true })
-      res.cookie('part', part, { maxAge: 900000, httpOnly: true })
-      res.cookie('diff', diff, { maxAge: 900000, httpOnly: true })
-      res.cookie('name', name, { maxAge: 900000, httpOnly: true })
-      res.render('recommend', {recResult : {name, pos, part, diff, imgPath}})
-    })
-=======
+
       if (rows.length > 0) {
         const imgPath = `public/${rows[0].img}`;
         let name = rows[0].name;
         let caution = rows[0].caution;
         let content = rows[0].content;
         let effect = rows[0].effect;
+        res.cookie('pos', pos, { maxAge: 900000, httpOnly: true });
+        res.cookie('part', part, { maxAge: 900000, httpOnly: true });
+        res.cookie('diff', diff, { maxAge: 900000, httpOnly: true });
+        res.cookie('name', name, { maxAge: 900000, httpOnly: true });
         res.render('recommend', {
           recResult: {
             name, pos, part, diff, imgPath, caution, content, effect
@@ -358,9 +353,8 @@ app.post('/recommend', (req, res) => {
         res.send('No exercise found');
       }
     });
->>>>>>> Stashed changes
   } else {
-    res.render('../signIn');
+    res.render('signIn');
   }
 });
 
