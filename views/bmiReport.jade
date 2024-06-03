@@ -226,7 +226,7 @@ html(lang='en', data-bs-theme='auto')
             table.table.table-bordered
               thead
                 tr
-                  th 나이
+                  th 기록일시
                   th 신장
                   th 몸무게
                   th 체질량지수
@@ -234,7 +234,10 @@ html(lang='en', data-bs-theme='auto')
               tbody
                 each row in rows
                   tr
-                    td= row.age
+                    tr
+                    - var date = new Date(row.date);
+                    - var formattedDate = date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
+                    td= formattedDate
                     td= row.height
                     td= row.weight
                     td= row.bmi

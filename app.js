@@ -275,6 +275,10 @@ app.post('/bmiRecord', (req, res) => {
             console.log(err);
             res.status(500).send('Internal Server Error');
           } else {
+            res.clearCookie('age');
+            res.clearCookie('height');
+            res.clearCookie('weight');
+            res.clearCookie('bmi');
             res.render('bmiRecord', {alertMessage : '대시보드에 저장되었습니다.'});
           }
         });
@@ -316,6 +320,10 @@ app.post('/recommend', (req, res) => {
     let pos = req.body['options-position']
     let part = req.body['options-parts']
     let diff = req.body['options-difficulty']
+
+    res.cookie('pos', pos, { maxAge: 900000, httpOnly: true })
+    res.cookie('part', part, { maxAge: 900000, httpOnly: true })
+    res.cookie('diff', diff, { maxAge: 900000, httpOnly: true })
 
     let sql = 'SELECT name, img FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1'
     conn.query(sql, [pos,part], (err, rows) => {
@@ -380,7 +388,7 @@ app.post('/myPage/deleteExercise', (req, res) => {
   const query = 'DELETE FROM exercise WHERE id = ?';
   conn.query(query, [id], (err, result) => {
     if (err) {
-      console.error('Database query error:', err);
+      console.error(err);
       return res.status(500).json({ message: 'Internal Server Error' });
     }
     if (result.affectedRows > 0) {
@@ -950,7 +958,7 @@ app.get('/myPage/bmiReport', (req, res) => {
     if(req.session.user_id === "admin"){
       res.send('접근 권한이 없습니다.')
     }
-    let sql = 'SELECT * FROM userInput WHERE user_id=?'
+    let sql = 'SELECT * FROM userInput WHERE user_id=? ORDER BY id DESC'
     conn.query(sql, req.session.user_id, (err, rows) => {
       if(err){
         console.log(err)
@@ -1178,3 +1186,14 @@ app.get('/viewPost/:postId', (req, res) => {
     }
   });
 });
+
+app.post('/recommend/exerciseComp', (req, res) => {
+  if(req.session.user_id){
+    const {name, pos, diff} = req.body
+    console.log(name)
+    console.log(pos)
+    console.log(diff)
+  } else {
+    res.send('접근 권한이 없습니다.')
+  }
+})
