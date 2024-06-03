@@ -430,7 +430,7 @@ app.get('/community', (req, res) => {
     }
 
     const userName = result[0].name;
-    let sqlPosts = `SELECT post_id, title, content, name, created_at, view_count FROM posts`;
+    let sqlPosts = `SELECT post_id, title, content, name, created_at, view_count, author_id FROM posts`;
 
     if (query) {
       sqlPosts += ` WHERE title LIKE '%${query}%' OR content LIKE '%${query}%'`;
@@ -495,8 +495,8 @@ app.post('/community', (req, res) => {
     const userName = userResult[0].name;
 
     // 게시물을 추가하는 쿼리
-    const sqlInsertPost = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count) VALUES (?, ?, ?, ?, ?, 0)';
-    conn.query(sqlInsertPost, [post_id, title, content, userName, created_at], (err, result) => {
+    const sqlInsertPost = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count, author_id) VALUES (?, ?, ?, ?, ?, 0, ?)';
+    conn.query(sqlInsertPost, [post_id, title, content, userName, created_at, author_id], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).send('게시물을 작성하는 중 오류가 발생했습니다.');
@@ -528,7 +528,7 @@ app.post('/community', (req, res) => {
 
 // 게시물 작성 페이지에서 게시물을 DB에 저장하는 엔드포인트
 app.post('/write', (req, res) => {
-  const { post_id, title, content, created_at } = req.body;
+  const { post_id, title, content, created_at, author_id } = req.body;
   const userId = req.session.user_id;
 
   // 사용자의 이름을 가져오기 위한 쿼리
@@ -541,8 +541,8 @@ app.post('/write', (req, res) => {
       if (userResult.length > 0) { // 사용자 정보가 존재하는 경우
         const name = userResult[0].name; // 사용자 이름
         // 게시물 추가를 위한 SQL 쿼리
-        const sql = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count) VALUES (?, ?, ?, ?, ?, 0)';
-        conn.query(sql, [post_id, title, content, name, created_at], (err, result) => {
+        const sql = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count, author_id) VALUES (?, ?, ?, ?, ?, 0, ?)';
+        conn.query(sql, [post_id, title, content, name, created_at, author_id], (err, result) => {
           if (err) {
             console.error(err);
             res.status(500).send('Error creating post');
@@ -917,6 +917,9 @@ router.post('/:postId/reply', (req, res) => {
   });
 });
 
+
+
+
 app.get('/myPage', (req, res) => {
   if(req.session.user_id){
     const userId = req.session.user_id
@@ -1033,4 +1036,126 @@ app.post('/myPage/secession/delete', (req, res) => {
   } else {
     res.send('관리자 계정의 탈퇴는 불가능합니다.');
   }
+});
+
+
+// myPosts 라우트 설정
+app.get('/myPage/myPosts', (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) {
+    return res.redirect('/signIn');
+  }
+
+  let sql = 'SELECT name FROM users WHERE user_id = ?';
+  conn.query(sql, userId, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    if (!result.length) {
+      return res.redirect('/signIn');
+    }
+
+    const userName = result[0].name;
+
+    sql = 'SELECT post_id, title, content, user_id, created_at FROM posts WHERE user_id = ?';
+    conn.query(sql, userId, (err, postsResult) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Internal Server Error');
+      }
+    
+      if (!postsResult.length) {
+        return res.render('myPosts', { name: userName, posts: [] });
+      }
+    
+      postsResult.forEach(post => {
+        post.created_at = moment(post.created_at).format('YYYY-MM-DD HH:mm:ss');
+      });
+    
+      res.render('myPosts', { name: userName, posts: postsResult });
+      });
+  });
+});
+
+// viewPost 라우트 설정
+app.get('/viewPost/:postId', (req, res) => {
+  const postId = req.params.postId;
+  const sql = 'SELECT * FROM posts WHERE post_id = ?';
+  conn.query(sql, [postId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error fetching post content');
+    } else {
+      if (result.length > 0) {
+        res.render('viewPost', { post: result[0] });
+      } else {
+        res.status(404).send('Post not found');
+      }
+    }
+  });
+});
+
+// myComents 라우트 설정
+app.get('/myPage/myComments', (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) {
+      return res.redirect('/signIn');
+  }
+
+  let sql = 'SELECT name FROM users WHERE user_id = ?';
+  conn.query(sql, userId, (err, result) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).send('Internal Server Error');
+      }
+
+      if (!result.length) {
+          return res.redirect('/signIn');
+      }
+
+      const userName = result[0].name;
+
+      sql = `
+          SELECT p.post_id, p.title, p.content, p.user_id, p.created_at 
+          FROM posts p
+          JOIN comments c ON p.post_id = c.post_id
+          WHERE c.author_id = ?
+      `;
+      conn.query(sql, [userId], (err, postsResult) => {
+          if (err) {
+              console.error(err);
+              return res.status(500).send('Internal Server Error');
+          }
+          
+          if (!postsResult.length) {
+              return res.render('myComments', { name: userName, posts: [] });
+          }
+          
+          postsResult.forEach(post => {
+              post.created_at = moment(post.created_at).format('YYYY-MM-DD HH:mm:ss');
+          });
+          
+          res.render('myComments', { name: userName, posts: postsResult });
+      });
+  });
+});
+
+// viewPost 라우트 설정
+app.get('/viewPost/:postId', (req, res) => {
+  const postId = req.params.postId;
+  const sql = 'SELECT * FROM posts WHERE post_id = ?';
+  conn.query(sql, [postId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error fetching post content');
+    } else {
+      if (result.length > 0) {
+        res.render('viewPost', { post: result[0] });
+      } else {
+        res.status(404).send('Post not found');
+      }
+    }
+  });
 });
