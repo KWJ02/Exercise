@@ -411,7 +411,58 @@ app.get('/myPage/recExerciseList', (req, res) => {
 
 // ********************************** 운동 라이브러리
 app.get('/exerciseLib', (req, res) => {
-  res.send('운동 라이브러리 개설 예정')
+  if(req.session.user_id){
+    let sql = 'SELECT name FROM users WHERE user_id=?'
+    conn.query(sql, req.session.user_id, (err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      const name = rows[0].name
+      let sql2 = 'SELECT * FROM exercise'
+      conn.query(sql2, (err, erows) => {
+        if(err){
+          console.log(err)
+          res.send('Internal Server Error')
+        }
+        res.render('exerciseLib', {name : name, rows : erows})
+      })
+    })
+  } else {
+    res.redirect('/signIn')
+  }
+})
+
+app.post('/exerciseLib/search', (req, res) => {
+  if(req.session.user_id){
+    const keyword = req.body.searchInput
+
+    if(keyword === ""){
+      let sql = 'SELECT * FROM exercise'
+      conn.query(sql, (err, rows) => {
+        if(err){
+          console.log(err)
+          res.send('Internal Server Error')
+        }
+        res.render('exerciseLib', {rows : rows})
+      })
+    } else {
+      let sql = 'SELECT name, pos, part FROM exercise WHERE name LIKE ?'
+      conn.query(sql, [`%${keyword}%`], (err, rows) => {
+        if(err){
+          console.log(err)
+          res.send('Internal Server Error')
+        }
+        if(rows.length > 0){
+          res.render('exerciseLib', {rows : rows, keyword : keyword})
+        } else {
+          res.render('exerciseLib')
+        }
+      })
+    }
+  } else {
+    res.redirect('/signIn')
+  }
 })
 
 app.get('/myPage/exerciseManage', (req, res) => {
@@ -481,6 +532,20 @@ app.get('/myPage/userManage', (req, res) => {
   }
 })
 
+app.get('/myPage/userExerciseLog', (req, res) => {
+  if(req.session.user_id === 'admin'){
+    let sql = 'SELECT * FROM userExerciseList'
+    conn.query(sql,(err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      res.render('userExerciseLog', {rows : rows})
+    })
+  } else {
+    res.send('접근 권한이 없습니다.')
+  }
+})
 
 app.get('/community', (req, res) => {
   const userId = req.session.user_id;
