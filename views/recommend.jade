@@ -90,6 +90,12 @@ html(lang='en', data-bs-theme='auto')
         display: block !important;
       }
 
+      .container-box {
+        height: 170px; /* Adjust the height as needed */
+        overflow-y: auto; /* Add vertical scrollbar if content exceeds height */
+      }
+
+
 
   body
     .container.py-3
@@ -114,30 +120,34 @@ html(lang='en', data-bs-theme='auto')
               h2 Complete 3 sets of 8 reps each.
             
 
-      main
-        .row.row-cols-1.row-cols-md-3.mb-3.text-center
-          .col
-            .card.mb-4.rounded-3.shadow-sm
-              .card-header.py-3
-                h4.my-0.fw-normal Free
-              .card-body
-                ul.list-unstyled.mt-3.mb-4
-                  li 10 users included
-                  li 2 GB of storage
-                  li Email support
-                  li Help center access
+main
+  .container
+    .row.justify-content-center
+      .col-lg-4
+        .card.mb-4.rounded-3.shadow-sm
+          .card-header.py-3.bg-light
+            h4.my-0.fw-normal.text-primary 운동 주의사항
+          .card-body
+            ul.list-unstyled.mt-3.mb-4
+              li
+                label(for='caution') Caution
+                hr
+                .container-box
+                  p#caution= recResult.caution
 
-          .col
-            .card.mb-4.rounded-3.shadow-sm
-              .card-header.py-3
-                h4.my-0.fw-normal Pro
-              .card-body
-                ul.list-unstyled.mt-3.mb-4
-                  li 20 users included
-                  li 10 GB of storage
-                  li Priority email support
-                  li Help center access
+      .col-lg-4
+        .card.mb-4.rounded-3.shadow-sm
+          .card-header.py-3.bg-light
+            h4.my-0.fw-normal.text-primary 운동 내용
+          .card-body
+            ul.list-unstyled.mt-3.mb-4
+              li
+                label(for='content') Content
+                hr
+                .container-box
+                  p#content= recResult.content
 
+<<<<<<< Updated upstream
           .col
             .card.mb-4.rounded-3.shadow-sm.border-primary
               .card-header.py-3.text-bg-primary.border-primary
@@ -153,6 +163,24 @@ html(lang='en', data-bs-theme='auto')
           .row
             .col.text-center
               button.btn.btn-primary.btn-lg(type='submit' style="width : 80%; margin-top : 100px;") 운동 완료
+=======
+      .col-lg-4
+        .card.mb-4.rounded-3.shadow-sm.border-primary
+          .card-header.py-3.text-bg-primary.border-primary
+            h4.my-0.fw-normal.text-white 운동 효과
+          .card-body
+            ul.list-unstyled.mt-3.mb-4
+              li
+                label(for='effect') Effect
+                hr
+                .container-box
+                  p#effect= recResult.effect
+
+    .row.justify-content-center
+      .col-lg-12.text-center
+        form(action='/exerciseComplete', method='post')
+          button.btn.btn-primary.btn-lg(type='submit' style="width: 50%; margin-top: 20px;") 운동 완료
+>>>>>>> Stashed changes
 
       footer.pt-4.my-md-5.pt-md-5.border-top
         .row

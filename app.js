@@ -25,7 +25,7 @@ const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
   password : '',
-  database : 'ER' // 데이터베이스 이름 유의
+  database : 'inf' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -39,7 +39,7 @@ app.use(session({
     port : 3306,
     user : 'root',
     password : '',
-    database : 'ER'
+    database : 'inf'
   })
 }))
 
@@ -322,17 +322,18 @@ app.get('/exerciseRec', (req, res) => {
 })
 
 app.post('/recommend', (req, res) => {
-  if(req.session.user_id){
-    let pos = req.body['options-position']
-    let part = req.body['options-parts']
-    let diff = req.body['options-difficulty']
+  if (req.session.user_id) {
+    let pos = req.body['options-position'];
+    let part = req.body['options-parts'];
+    let diff = req.body['options-difficulty'];
 
-    let sql = 'SELECT name, img FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1'
-    conn.query(sql, [pos,part], (err, rows) => {
-      if(err){
-        console.log(err)
-        res.send('Internal Server Error')
+    let sql = 'SELECT name, img, caution, content, effect FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1';
+    conn.query(sql, [pos, part], (err, rows) => {
+      if (err) {
+        console.log(err);
+        res.send('Internal Server Error');
       }
+<<<<<<< Updated upstream
       const imgPath = `public/${rows[0].img}`
       let name = rows[0].name
       res.cookie('pos', pos, { maxAge: 900000, httpOnly: true })
@@ -341,10 +342,45 @@ app.post('/recommend', (req, res) => {
       res.cookie('name', name, { maxAge: 900000, httpOnly: true })
       res.render('recommend', {recResult : {name, pos, part, diff, imgPath}})
     })
+=======
+      if (rows.length > 0) {
+        const imgPath = `public/${rows[0].img}`;
+        let name = rows[0].name;
+        let caution = rows[0].caution;
+        let content = rows[0].content;
+        let effect = rows[0].effect;
+        res.render('recommend', {
+          recResult: {
+            name, pos, part, diff, imgPath, caution, content, effect
+          }
+        });
+      } else {
+        res.send('No exercise found');
+      }
+    });
+>>>>>>> Stashed changes
   } else {
-    res.render('../signIn')
+    res.render('../signIn');
   }
-})
+});
+
+app.get('/exercise/:id', (req, res) => {
+  const exerciseId = req.params.id;
+  
+  const sql = 'SELECT * FROM exercise WHERE id = ?';
+  conn.query(sql, [exerciseId], (err, result) => {
+    if (err) {
+      console.log(err);
+      res.send('Internal Server Error');
+      return;
+    }
+    if (result.length > 0) {
+      res.render('exercise', { exercise: result[0] });
+    } else {
+      res.send('Exercise not found');
+    }
+  });
+});
 
 app.post('/recommend/exerciseComp', (req, res) => {
   if(req.session.user_id){
@@ -416,8 +452,8 @@ app.post('/myPage/exerciseManage', upload.single('photo'), (req, res) => {
   const img = req.file
   console.log(img)
 
-  let sql = 'INSERT INTO exercise (name, pos, part, img) VALUES (?,?,?,?)'
-  conn.query(sql, [name, pos, part, img.filename], (err, rows) => {
+  let sql = 'INSERT INTO exercise (name, pos, part, img, time, content, effect) VALUES (?,?,?,?,?,?,?)'
+  conn.query(sql, [name, pos, part, img.filename, time, content, effect], (err, rows) => {
     if(err){
       console.log(err)
       res.send('Internal Server Error')
@@ -487,7 +523,7 @@ app.get('/community', (req, res) => {
     }
 
     const userName = result[0].name;
-    let sqlPosts = `SELECT post_id, title, content, name, created_at, view_count, author_id FROM posts`;
+    let sqlPosts = `SELECT post_id, title, content, name, created_at, view_count FROM posts`;
 
     if (query) {
       sqlPosts += ` WHERE title LIKE '%${query}%' OR content LIKE '%${query}%'`;
@@ -552,8 +588,8 @@ app.post('/community', (req, res) => {
     const userName = userResult[0].name;
 
     // 게시물을 추가하는 쿼리
-    const sqlInsertPost = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count, author_id) VALUES (?, ?, ?, ?, ?, 0, ?)';
-    conn.query(sqlInsertPost, [post_id, title, content, userName, created_at, author_id], (err, result) => {
+    const sqlInsertPost = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count) VALUES (?, ?, ?, ?, ?, 0)';
+    conn.query(sqlInsertPost, [post_id, title, content, userName, created_at], (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).send('게시물을 작성하는 중 오류가 발생했습니다.');
@@ -585,7 +621,7 @@ app.post('/community', (req, res) => {
 
 // 게시물 작성 페이지에서 게시물을 DB에 저장하는 엔드포인트
 app.post('/write', (req, res) => {
-  const { post_id, title, content, created_at, author_id } = req.body;
+  const { post_id, title, content, created_at } = req.body;
   const userId = req.session.user_id;
 
   // 사용자의 이름을 가져오기 위한 쿼리
@@ -598,8 +634,8 @@ app.post('/write', (req, res) => {
       if (userResult.length > 0) { // 사용자 정보가 존재하는 경우
         const name = userResult[0].name; // 사용자 이름
         // 게시물 추가를 위한 SQL 쿼리
-        const sql = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count, author_id) VALUES (?, ?, ?, ?, ?, 0, ?)';
-        conn.query(sql, [post_id, title, content, name, created_at, author_id], (err, result) => {
+        const sql = 'INSERT INTO posts (post_id, title, content, name, created_at, view_count) VALUES (?, ?, ?, ?, ?, 0)';
+        conn.query(sql, [post_id, title, content, name, created_at], (err, result) => {
           if (err) {
             console.error(err);
             res.status(500).send('Error creating post');

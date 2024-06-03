@@ -223,6 +223,18 @@ html(lang='en', data-bs-theme='auto')
                   input#exercisePhoto.form-control(type="file", name="photo")
 
                 .form-group
+                  label(for="time") 운동 시간:
+                  input#exerciseTime.form-control(type="text", name="time")
+
+               .form-group
+                  label(for="Content") 운동 내용:
+                  input#exerciseConetent.form-control(type="text", name="Content")
+
+                .form-group
+                  label(for="effect") 운동 효과:
+                  input#exerciseEffect.form-control(type="text", name="effect")
+
+                .form-group
                   input#submitButton.btn.btn-primary(type="submit", value="등록", disabled)
 
           if(rows)
@@ -232,6 +244,9 @@ html(lang='en', data-bs-theme='auto')
                   th 운동 이름
                   th 운동 장소
                   th 운동 부위
+                  th 운동 주의사항
+                  th 운동 내용
+                  th 운동 효과
                   th 관리
               tbody
                 each row in rows
@@ -239,6 +254,9 @@ html(lang='en', data-bs-theme='auto')
                     td= row.name
                     td= row.pos
                     td= row.part
+                    td= row.caution
+                    td= row.content
+                    td= row.effect
                     td
                       button.btn.btn-danger.deleteBtn X
     script. 
