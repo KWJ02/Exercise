@@ -215,68 +215,6 @@ html(lang='en', data-bs-theme='auto')
                   use(xlink:href='#calendar3')
                 | This week
           canvas.my-4.w-100#myChart(width='900', height='380')
-          h2 #{name}님의 최근 운동 기록
-          br
-          .table-responsive.small
-            table.table.table-striped.table-sm(style='text-align : center;')
-              thead
-                tr
-                  th(scope='col') 날짜
-                  th(scope='col') 나이
-                  th(scope='col') 신장
-                  th(scope='col') 몸무게
-                  th(scope='col') 체질량지수
-                  th(scope='col') 단계
-              tbody
-                tr(style='height: 50px; vertical-align : middle;')
-                  td #{month}월 #{sevenDaysAgo}일
-                  td random
-                  td data
-                  td placeholder
-                  td text
-                  td
-                tr(style='height: 50px; vertical-align : middle;')
-                  td #{month}월 #{sevenDaysAgo + 1}일
-                  td placeholder
-                  td irrelevant
-                  td visual
-                  td layout
-                  td
-                tr(style='height: 50px; vertical-align : middle;')
-                  td #{month}월 #{sevenDaysAgo + 2}일
-                  td placeholder
-                  td irrelevant
-                  td visual
-                  td layout
-                  td
-                tr(style='height: 50px; vertical-align : middle;')
-                  td #{month}월 #{sevenDaysAgo + 3}일
-                  td placeholder
-                  td irrelevant
-                  td visual
-                  td layout
-                  td
-                tr(style='height: 50px; vertical-align : middle;')
-                  td #{month}월 #{sevenDaysAgo + 4}일
-                  td placeholder
-                  td irrelevant
-                  td visual
-                  td layout
-                  td
-                tr(style='height: 50px; vertical-align : middle;')
-                  td #{month}월 #{sevenDaysAgo + 5}일
-                  td placeholder
-                  td irrelevant
-                  td visual
-                  td layout
-                  td
-                tr(style='height: 50px; vertical-align : middle;')
-                  td #{month}월 #{sevenDaysAgo + 6}일
-                  td placeholder
-                  td irrelevant
-                  td visual
-                  td layout
-                  td
 
   
 
@@ -286,9 +224,10 @@ html(lang='en', data-bs-theme='auto')
       var myChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+          labels: ['어깨', '가슴', '등', '코어'],
           datasets: [{
-            data: [12, 19, 3, 5, 2, 3],
+            label: '운동 횟수',
+            data: [#{count.shoulder_c}, #{count.chest_c}, #{count.back_c}, #{count.core_c}],
             backgroundColor: [
               'rgba(255, 99, 132, 0.2)',
               'rgba(54, 162, 235, 0.2)',
@@ -305,11 +244,7 @@ html(lang='en', data-bs-theme='auto')
               'rgba(153, 102, 255, 1)',
               'rgba(255, 159, 64, 1)'
             ],
-            lineTension: 0.3,
-            backgroundColor: 'transparent',
-            borderColor: '#007bff',
-            borderWidth: 4,
-            pointBackgroundColor: '#007bff'
+            borderWidth: 1
           }]
         },
         options: {
@@ -331,6 +266,5 @@ html(lang='en', data-bs-theme='auto')
     script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', integrity='sha384-BNL5rREJkCd2w/cFt9q2qjMC4UtUJoWjCIW4j6Gv6FwV7q8TtoU96n8ZOyRR5iY0', crossorigin='anonymous')
     script(src='https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js', integrity='sha384-4+Q/RxMJxp4RmN2uDSOzEgHuygB0FV9s8V30MhHavc/q53M8ymMmyCuTKUJlK+0H', crossorigin='anonymous')
     script(src='https://cdn.jsdelivr.net/npm/@docsearch/js@3/dist/cdn/docsearch.min.js')
-    script(src="dashboard.js")
     script(src='../assets/dist/js/bootstrap.bundle.min.js')
     script(src='https://cdn.jsdelivr.net/npm/@twbs/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', integrity='sha384-BNL5rREJkCd2w/cFt9q2qjMC4UtUJoWjCIW4j6Gv6FwV7q8TtoU96n8ZOyRR5iY0', crossorigin='anonymous')
