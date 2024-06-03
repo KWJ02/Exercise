@@ -138,14 +138,16 @@ main
       .col-lg-4
         .card.mb-4.rounded-3.shadow-sm
           .card-header.py-3.bg-light
-            h4.my-0.fw-normal.text-primary 운동 내용
+            h4.my-0.fw-normal.text-primary 운동 방법
           .card-body
             ul.list-unstyled.mt-3.mb-4
               li
-                label(for='content') Content
+                label(for='method') Method
                 hr
                 .container-box
-                  p#content= recResult.content
+                  p= recResult.line1 
+                  p= recResult.line2
+                  p= recResult.line3
 
       .col-lg-4
         .card.mb-4.rounded-3.shadow-sm.border-primary

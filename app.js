@@ -25,7 +25,7 @@ const conn = mysql.createConnection({
   host : 'localhost',
   user : 'root',
   password : '',
-  database : 'inf' // 데이터베이스 이름 유의
+  database : 'ER' // 데이터베이스 이름 유의
 })
 const app = express()
 
@@ -39,7 +39,7 @@ app.use(session({
     port : 3306,
     user : 'root',
     password : '',
-    database : 'inf'
+    database : 'ER'
   })
 }))
 
@@ -327,53 +327,41 @@ app.post('/recommend', (req, res) => {
     let part = req.body['options-parts'];
     let diff = req.body['options-difficulty'];
 
-    let sql = 'SELECT name, img, caution, content, effect FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1';
-    conn.query(sql, [pos, part], (err, rows) => {
-      if (err) {
+    let sql = 'SELECT name, img FROM exercise WHERE pos=? AND part=? ORDER BY RAND() LIMIT 1';
+    conn.query(sql, [pos,part], (err, rows) => {
+      if(err){
         console.log(err);
         return res.status(500).send('Internal Server Error');
       }
 
-      if (rows.length > 0) {
+      if(rows.length > 0){
         const imgPath = `public/${rows[0].img}`;
         let name = rows[0].name;
-        let caution = rows[0].caution;
-        let content = rows[0].content;
-        let effect = rows[0].effect;
         res.cookie('pos', pos, { maxAge: 900000, httpOnly: true });
         res.cookie('part', part, { maxAge: 900000, httpOnly: true });
         res.cookie('diff', diff, { maxAge: 900000, httpOnly: true });
         res.cookie('name', name, { maxAge: 900000, httpOnly: true });
-        res.render('recommend', {
-          recResult: {
-            name, pos, part, diff, imgPath, caution, content, effect
+        let sql2 = 'SELECT * FROM exerciseInform WHERE name = ?'
+        conn.query(sql2, name, (err, result) => {
+          if(err){
+            console.log(err)
+            res.send('Internal Server Error')
           }
-        });
+          const caution = result[0].caution
+          const method = result[0].method.split(/\r?\n/)
+          const line1 = method[0]
+          const line2 = method[1]
+          const line3 = method[2]
+          const effect = result[0].effect
+          res.render('recommend', { recResult: { name, pos, part, diff, imgPath, caution, line1, line2, line3, effect }});
+        })
       } else {
         res.send('No exercise found');
       }
     });
   } else {
-    res.render('signIn');
+    res.redirect('/signIn');
   }
-});
-
-app.get('/exercise/:id', (req, res) => {
-  const exerciseId = req.params.id;
-  
-  const sql = 'SELECT * FROM exercise WHERE id = ?';
-  conn.query(sql, [exerciseId], (err, result) => {
-    if (err) {
-      console.log(err);
-      res.send('Internal Server Error');
-      return;
-    }
-    if (result.length > 0) {
-      res.render('exercise', { exercise: result[0] });
-    } else {
-      res.send('Exercise not found');
-    }
-  });
 });
 
 app.post('/recommend/exerciseComp', (req, res) => {
@@ -444,10 +432,9 @@ app.get('/myPage/exerciseManage', (req, res) => {
 app.post('/myPage/exerciseManage', upload.single('photo'), (req, res) => {
   const {pos, part, name} = req.body
   const img = req.file
-  console.log(img)
 
-  let sql = 'INSERT INTO exercise (name, pos, part, img, time, content, effect) VALUES (?,?,?,?,?,?,?)'
-  conn.query(sql, [name, pos, part, img.filename, time, content, effect], (err, rows) => {
+  let sql = 'INSERT INTO exercise (name, pos, part, img) VALUES (?,?,?,?)'
+  conn.query(sql, [name, pos, part, img.filename], (err, rows) => {
     if(err){
       console.log(err)
       res.send('Internal Server Error')
