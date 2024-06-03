@@ -221,6 +221,36 @@ html(lang='en', data-bs-theme='auto')
         main.col-md-9.ms-sm-auto.col-lg-10.px-md-4
           .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
             h1.h2 BMI 기록일지
+          
+          if(rows)
+            table.table.table-bordered
+              thead
+                tr
+                  th 나이
+                  th 신장
+                  th 몸무게
+                  th 체질량지수
+                  th 등급
+              tbody
+                each row in rows
+                  tr
+                    td= row.age
+                    td= row.height
+                    td= row.weight
+                    td= row.bmi
+                    td 
+                      if row.bmi < 18.5
+                        | 저체중
+                      else if row.bmi < 25
+                        | 정상
+                      else if row.bmi < 30
+                        | 과체중
+                      else if row.bmi < 35
+                        | 1단계 비만
+                      else if row.bmi < 40
+                        | 2단계 비만
+                      else
+                        | 3단계 비만
 
 
           canvas.my-4.w-100#myChart(width='900', height='450')

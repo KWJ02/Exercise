@@ -254,7 +254,6 @@ app.post('/bmiCalc', (req, res) => {
 // ********************************** bmi기록
 app.post('/bmiRecord', (req, res) => {
   const userInput = req.cookies;
-  console.log(userInput)
   if(req.session.user_id){
     let id = req.session.user_id;
     let sql = 'SELECT name from users WHERE user_id = ?';
@@ -943,6 +942,26 @@ app.get('/myPage', (req, res) => {
     })
   } else {
     res.redirect('/signIn')
+  }
+})
+
+app.get('/myPage/bmiReport', (req, res) => {
+  if(req.session.user_id){
+    if(req.session.user_id === "admin"){
+      res.send('접근 권한이 없습니다.')
+    }
+    let sql = 'SELECT * FROM userInput WHERE user_id=?'
+    conn.query(sql, req.session.user_id, (err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      console.log(rows)
+      res.render('bmiReport', {rows : rows})
+    })
+
+  } else {
+    res.send('접근 권한이 없습니다.')
   }
 })
 
