@@ -267,7 +267,7 @@ app.post('/bmiRecord', (req, res) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0'); 
-        timeStamp = `${year}-${month}-${day}`;
+        const timeStamp = `${year}-${month}-${day}`;
 
         let sql2 = 'INSERT INTO userinput (user_id, age, height, weight, bmi, date) VALUES (?,?,?,?,?,?)';
         conn.query(sql2, [id, userInput.age, userInput.height, userInput.weight, userInput.bmi, timeStamp], (err, rows) => {
@@ -307,7 +307,13 @@ app.get('/exerciseRec', (req, res) => {
         console.log(err)
         res.status(500).send('Internal Server Error')
       } else {
-        res.render('exerciseRec', {name : result[0].name, id : result[0].user_id})
+        if(req.session.message){
+          const alertMessage = req.session.message
+          delete req.session.message
+          res.render('exerciseRec', {name : result[0].name, id : result[0].user_id, alertMessage : alertMessage})
+        } else {
+          res.render('exerciseRec', {name : result[0].name, id : result[0].user_id})
+        }
       }
     })
   } else {
@@ -321,10 +327,6 @@ app.post('/recommend', (req, res) => {
     let part = req.body['options-parts']
     let diff = req.body['options-difficulty']
 
-    res.cookie('pos', pos, { maxAge: 900000, httpOnly: true })
-    res.cookie('part', part, { maxAge: 900000, httpOnly: true })
-    res.cookie('diff', diff, { maxAge: 900000, httpOnly: true })
-
     let sql = 'SELECT name, img FROM exercise WHERE pos = ? AND part = ? ORDER BY RAND() LIMIT 1'
     conn.query(sql, [pos,part], (err, rows) => {
       if(err){
@@ -333,6 +335,10 @@ app.post('/recommend', (req, res) => {
       }
       const imgPath = `public/${rows[0].img}`
       let name = rows[0].name
+      res.cookie('pos', pos, { maxAge: 900000, httpOnly: true })
+      res.cookie('part', part, { maxAge: 900000, httpOnly: true })
+      res.cookie('diff', diff, { maxAge: 900000, httpOnly: true })
+      res.cookie('name', name, { maxAge: 900000, httpOnly: true })
       res.render('recommend', {recResult : {name, pos, part, diff, imgPath}})
     })
   } else {
@@ -340,6 +346,50 @@ app.post('/recommend', (req, res) => {
   }
 })
 
+app.post('/recommend/exerciseComp', (req, res) => {
+  if(req.session.user_id){
+    const {pos, part, diff, name} = req.cookies
+    const date = new Date()
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0'); 
+    const timeStamp = `${year}-${month}-${day}`;
+
+    let sql = 'INSERT INTO userExerciseList (user_id, date, name, pos, part, diff) VALUES (?,?,?,?,?,?)'
+    conn.query(sql, [req.session.user_id, timeStamp, name, pos, part, diff], (err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      req.session.message = "운동 결과가 기록되었습니다."
+      res.clearCookie('pos')
+      res.clearCookie('part')
+      res.clearCookie('diff')
+      res.clearCookie('name')
+      res.redirect('/exerciseRec')
+    })
+  } else {
+    res.send('접근 권한이 없습니다.')
+  }
+})
+
+app.get('/myPage/recExerciseList', (req, res) => {
+  if(req.session.user_id){
+    if(req.session.user_id === 'admin'){
+      res.send('접근 권한이 없습니다.')
+    }
+    let sql = 'SELECT * FROM userExerciseList WHERE user_id=? ORDER BY id DESC'
+    conn.query(sql, req.session.user_id, (err, rows) => {
+      if(err){
+        console.log(err)
+        res.send('Internal Server Error')
+      }
+      res.render('recExerciseList', {rows : rows})
+    })
+  } else {
+    res.send('접근 권한이 없습니다.')
+  }
+})
 
 // ********************************** 운동 라이브러리
 app.get('/exerciseLib', (req, res) => {
@@ -964,7 +1014,6 @@ app.get('/myPage/bmiReport', (req, res) => {
         console.log(err)
         res.send('Internal Server Error')
       }
-      console.log(rows)
       res.render('bmiReport', {rows : rows})
     })
 
@@ -975,6 +1024,9 @@ app.get('/myPage/bmiReport', (req, res) => {
 
 app.get('/myPage/alterUserInform', (req, res) => {
   if(req.session.user_id) {
+    if(req.session.user_id === 'admin'){
+      res.send('접근 권한이 없습니다.')
+    }
     res.render('alterInfo')
   } else {
     res.send('접근 권한이 없습니다.')
@@ -1186,14 +1238,3 @@ app.get('/viewPost/:postId', (req, res) => {
     }
   });
 });
-
-app.post('/recommend/exerciseComp', (req, res) => {
-  if(req.session.user_id){
-    const {name, pos, diff} = req.body
-    console.log(name)
-    console.log(pos)
-    console.log(diff)
-  } else {
-    res.send('접근 권한이 없습니다.')
-  }
-})

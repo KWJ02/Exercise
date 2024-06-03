@@ -220,18 +220,17 @@ html(lang='en', data-bs-theme='auto')
               
         main.col-md-9.ms-sm-auto.col-lg-10.px-md-4
           .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
-            h1.h2 BMI 기록일지
-          
-          
+            h1.h2 추천받은 운동 목록
+
           if(rows.length > 0)
             table.table.table-bordered
               thead
                 tr
-                  th 기록 일시
-                  th 신장
-                  th 몸무게
-                  th 체질량지수
-                  th 등급
+                  th 운동 일시
+                  th 운동 이름
+                  th 운동 장소
+                  th 운동 부위
+                  th 운동 강도
               tbody
                 each row in rows
                   tr
@@ -239,31 +238,25 @@ html(lang='en', data-bs-theme='auto')
                     - var date = new Date(row.date);
                     - var formattedDate = date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
                     td= formattedDate
-                    td= row.height
-                    td= row.weight
-                    td= row.bmi
+                    td= row.name
+                    td= row.pos
+                    td= row.part
                     td 
-                      if row.bmi < 18.5
-                        | 저체중
-                      else if row.bmi < 25
-                        | 정상
-                      else if row.bmi < 30
-                        | 과체중
-                      else if row.bmi < 35
-                        | 1단계 비만
-                      else if row.bmi < 40
-                        | 2단계 비만
-                      else
-                        | 3단계 비만
+                      if row.diff === 'intense'
+                        span(style="color : red; font-weight : bold") (상) 12rep / 5sets
+                      else if row.diff === 'intermediate'
+                        span(style="color : blue; font-weight : bold") (중) 10rep / 4sets
+                      else if row.diff === 'beginner'
+                        span(style="color : green; font-weight : bold") (하) 8rep / 3sets
           else
             table.table.table-bordered
               thead
                 tr
-                  th 기록 일시
-                  th 신장
-                  th 몸무게
-                  th 체질량지수
-                  th 등급
+                  th 운동 일시
+                  th 운동 이름
+                  th 운동 장소
+                  th 운동 부위
+                  th 운동 강도
               tbody
                 tr
                   td(colspan="5" style="text-align : center") 기록 내용이 없습니다.
